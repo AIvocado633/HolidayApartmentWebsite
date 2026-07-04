@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  trailingSlash: true,
   basePath: '/HolidayApartmentWebsite',
   images: {
     unoptimized: true,
-    qualities: [75, 80],
     remotePatterns: [
       {
         protocol: 'https',
