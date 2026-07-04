@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -12,8 +12,7 @@ type NavLink = {
 const NAV_LINKS: NavLink[] = [
   { label: 'Ausstattung', href: '#amenities' },
   { label: 'Galerie', href: '#gallery' },
-  { label: 'Preise', href: '#pricing' },
-  { label: 'Kontakt', href: '#contact' },
+   { label: 'Kontakt', href: '#contact' },
 ];
 
 const Navbar = (): React.JSX.Element => {

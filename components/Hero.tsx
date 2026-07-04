@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowDown, CalendarDays, MapPin } from 'lucide-react';
 import heroImage from '@/public/hero.jpg';
@@ -68,10 +68,9 @@ const Hero = (): React.JSX.Element => {
         {/* Quick stats */}
         <dl className="flex flex-wrap justify-center gap-x-10 gap-y-4 mt-8 pt-8 border-t border-cream/20 w-full max-w-xl animate-fade-in">
           {[
-            { label: 'Schlafzimmer', value: '2' },
+            { label: 'Schlafzimmer', value: '1' },
             { label: 'Max. Personen', value: '4' },
-            { label: 'Quadratmeter', value: 'XX' },
-            { label: 'Bewertung', value: '4.9★' },
+            { label: 'Quadratmeter', value: '80' },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col items-center gap-1">
               <dt className="font-body text-xs text-cream/60 uppercase tracking-wider">

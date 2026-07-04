@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Send, User, Mail, Phone, Calendar, Users, MessageSquare } from 'lucide-react';
@@ -56,7 +56,7 @@ const ContactForm = (): React.JSX.Element => {
   return (
     <section
       id="contact"
-      className="py-20 md:py-28 bg-beige-light"
+      className="py-20 md:py-28 bg-cream"
       aria-labelledby="contact-heading"
     >
       <div className="section-container section-padding">
@@ -77,10 +77,13 @@ const ContactForm = (): React.JSX.Element => {
 
             <dl className="flex flex-col gap-4 pt-2">
               {[
-                { label: 'E-Mail', value: 'hallo@rhoenblick-ferien.de' },
+                { label: 'E-Mail', value: 'hallo@XYZ-ferien.de' },
                 { label: 'Telefon', value: '+49 1234 567890' },
                 { label: 'Adresse', value: 'Dorfstraße 7, 97795 Schondra' },
                 { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
+                { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
+                { label: 'Kaution', value: '200 € (wird nach Abreise zurücküberwiesen)' },
+                { label: 'Anzahlung', value: '50 % zur Buchungsbestätigung erforderlich' },
               ].map(({ label, value }) => (
                 <div key={label} className="flex flex-col gap-0.5">
                   <dt className="font-body text-xs font-semibold uppercase tracking-widest text-warm-500">

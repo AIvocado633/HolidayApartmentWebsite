@@ -95,13 +95,13 @@ const Gallery = (): React.JSX.Element => {
       <div className="section-container section-padding">
         {/* Section header */}
         <header className="flex flex-col items-center text-center gap-4 mb-14">
-          <p className="label-overline">Our spaces</p>
+          <p className="label-overline">Unsere Räume</p>
           <h2 id="gallery-heading" className="heading-lg max-w-xl">
-            A Glimpse Inside Villa Sonnenschein
+            Ein Blick in die Villa Sonnenschein
           </h2>
           <p className="font-body text-base text-accent-muted max-w-lg leading-relaxed">
-            Every corner of our property has been designed with care. Explore
-            the interiors, outdoor areas, and stunning surroundings.
+            Jede Ecke unseres Anwesens wurde mit Liebe zum Detail gestaltet. Erkunden
+            Sie die Innenräume, Außenbereiche und die atemberaubende Umgebung.
           </p>
         </header>
 
@@ -117,7 +117,7 @@ const Gallery = (): React.JSX.Element => {
         </div>
 
         <p className="font-body text-sm text-warm-500 text-center mt-6">
-          {GALLERY_IMAGES.length} photos · Professional photography
+          {GALLERY_IMAGES.length} Fotos · Professionelle Fotografie
         </p>
       </div>
     </section>

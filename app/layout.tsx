@@ -19,7 +19,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Ferienwohnung Rhönblick | Urlaub in der Rhön',
+  title: 'Ferienwohnung XYZ | Urlaub in der Rhön',
   description:
     'Gemütliche Souterrainwohnung in einem kleinen Dorf mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.',
   keywords: [

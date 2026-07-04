@@ -38,8 +38,8 @@ const AMENITIES: Amenity[] = [
   },
   {
     icon: Car,
-    label: 'Kostenfreier Parkplatz',
-    description: 'Eigener Stellplatz direkt vor dem Haus',
+    label: 'Kostenfreie Parkmöglichkeit',
+    description: 'Ausreichend Parkmöglichkeiten direkt vor dem Haus',
   },
   {
     icon: Flower2,

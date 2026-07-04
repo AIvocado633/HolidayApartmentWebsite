@@ -4,6 +4,7 @@ const nextConfig = {
   basePath: '/HolidayApartmentWebsite',
   images: {
     unoptimized: true,
+    qualities: [75, 80],
     remotePatterns: [
       {
         protocol: 'https',

@@ -1,7 +1,6 @@
-import Hero from '@/components/Hero';
+﻿import Hero from '@/components/Hero';
 import Amenities from '@/components/Amenities';
 import Gallery from '@/components/Gallery';
-import PricingCalendar from '@/components/PricingCalendar';
 import ContactForm from '@/components/ContactForm';
 
 const HomePage = (): React.JSX.Element => {
@@ -10,8 +9,7 @@ const HomePage = (): React.JSX.Element => {
       <Hero />
       <Amenities />
       <Gallery />
-      <PricingCalendar />
-      <ContactForm />
+           <ContactForm />
     </>
   );
 };
