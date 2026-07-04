@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-cream: #fdf8f0;
+    --color-beige: #e8dcc8;
+    --color-slate-text: #1e293b;
+    --color-accent: #0f172a;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-slate-text font-body antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading text-accent;
+  }
+
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-container {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent text-cream font-body font-semibold text-sm tracking-wide rounded-none transition-all duration-200 hover:bg-accent-light hover:shadow-lg active:scale-95;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 border border-accent text-accent font-body font-semibold text-sm tracking-wide rounded-none transition-all duration-200 hover:bg-accent hover:text-cream active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-accent-muted font-body font-medium text-sm transition-colors duration-200 hover:text-accent;
+  }
+
+  .heading-xl {
+    @apply font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight;
+  }
+
+  .heading-lg {
+    @apply font-heading text-3xl sm:text-4xl md:text-5xl leading-tight tracking-tight;
+  }
+
+  .heading-md {
+    @apply font-heading text-2xl sm:text-3xl leading-snug;
+  }
+
+  .heading-sm {
+    @apply font-heading text-xl sm:text-2xl leading-snug;
+  }
+
+  .label-overline {
+    @apply font-body text-xs font-semibold uppercase tracking-widest text-warm-500;
+  }
+
+  .card {
+    @apply bg-white border border-beige shadow-sm transition-shadow duration-200 hover:shadow-md;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-white border border-beige text-slate-text font-body text-sm placeholder-warm-400 focus:outline-none focus:border-accent transition-colors duration-200;
+  }
+}
