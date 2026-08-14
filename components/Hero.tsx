@@ -1,7 +1,7 @@
 ﻿import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowDown, CalendarDays, MapPin } from 'lucide-react';
-import heroImage from '@/public/hero.jpg';
+import heroImage from '../pictures/web/rhoen-landschaft.jpg';
 
 const Hero = (): React.JSX.Element => {
   return (
@@ -16,7 +16,6 @@ const Hero = (): React.JSX.Element => {
         alt="Blick auf die Rhöner Landschaft mit bewaldeten Hügeln"
         fill
         priority
-        quality={85}
         className="object-cover object-center"
         sizes="100vw"
       />

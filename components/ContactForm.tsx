@@ -79,7 +79,7 @@ const ContactForm = (): React.JSX.Element => {
               {[
                 { label: 'E-Mail', value: 'hallo@XYZ-ferien.de' },
                 { label: 'Telefon', value: '+49 1234 567890' },
-                { label: 'Adresse', value: 'Dorfstraße 7, 97795 Schondra' },
+                { label: 'Adresse', value: 'Sandroth 15, 36145 Hofbieber/Kleinsassen' },
                 { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
                 { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
                 { label: 'Kaution', value: '200 € (wird nach Abreise zurücküberwiesen)' },

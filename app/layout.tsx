@@ -19,21 +19,22 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Ferienwohnung XYZ | Urlaub in der Rhön',
+  title: 'Ferienwohnung Zum Biebertal | Urlaub in der Rhön',
   description:
-    'Gemütliche Souterrainwohnung in einem kleinen Dorf mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.',
+    'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.',
   keywords: [
     'Ferienwohnung',
     'Rhön',
     'Urlaub in der Natur',
-    'Ferienwohnung Deutschland',
-    'Rhönblick',
+    'Ferienwohnung Zum Biebertal',
+    'Kleinsassen',
+    'Hofbieber',
     'Souterrain',
   ],
   openGraph: {
-    title: 'Ferienwohnung Rhönblick | Urlaub in der Rhön',
+    title: 'Ferienwohnung Zum Biebertal | Urlaub in der Rhön',
     description:
-      'Gemütliche Souterrainwohnung in einem kleinen Dorf mitten in der Rhön. Natur pur, frische Luft und echte Ruhe.',
+      'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe.',
     type: 'website',
   },
 };
