@@ -3,6 +3,18 @@ import Link from 'next/link';
 import { ArrowDown, CalendarDays, MapPin } from 'lucide-react';
 import heroImage from '../pictures/web/rhoen-landschaft.jpg';
 
+type HeroStat = {
+  label: string;
+  value: string;
+  hint?: string;
+};
+
+const HERO_STATS: HeroStat[] = [
+  { label: 'Schlafzimmer', value: '1' },
+  { label: 'Personen', value: '2', hint: '+ 2 auf dem Schlafsofa' },
+  { label: 'Quadratmeter', value: '80' },
+];
+
 const Hero = (): React.JSX.Element => {
   return (
     <section
@@ -66,11 +78,7 @@ const Hero = (): React.JSX.Element => {
 
         {/* Quick stats */}
         <dl className="flex flex-wrap justify-center gap-x-10 gap-y-4 mt-8 pt-8 border-t border-cream/20 w-full max-w-xl animate-fade-in">
-          {[
-            { label: 'Schlafzimmer', value: '1' },
-            { label: 'Max. Personen', value: '4' },
-            { label: 'Quadratmeter', value: '80' },
-          ].map((stat) => (
+          {HERO_STATS.map((stat) => (
             <div key={stat.label} className="flex flex-col items-center gap-1">
               <dt className="font-body text-xs text-cream/60 uppercase tracking-wider">
                 {stat.label}
@@ -78,6 +86,11 @@ const Hero = (): React.JSX.Element => {
               <dd className="font-heading text-2xl text-cream font-semibold">
                 {stat.value}
               </dd>
+              {stat.hint && (
+                <dd className="font-body text-xs text-cream/70 whitespace-nowrap">
+                  {stat.hint}
+                </dd>
+              )}
             </div>
           ))}
         </dl>
