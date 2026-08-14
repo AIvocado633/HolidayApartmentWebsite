@@ -46,15 +46,17 @@ const Navbar = (): React.JSX.Element => {
           {/* Logo */}
           <Link
             href="/"
-            className="flex flex-col leading-none group"
+            className="flex flex-col leading-none group pr-4"
             onClick={closeMobileMenu}
           >
             <span
-              className={`font-heading text-xl font-semibold tracking-tight transition-colors duration-300 ${
+              className={`font-heading text-base min-[360px]:text-lg sm:text-xl font-semibold tracking-tight transition-colors duration-300 ${
                 isScrolled ? 'text-accent' : 'text-cream'
               } group-hover:text-warm-400`}
             >
-              Ferienwohnung Rhönblick
+              {/* Non-breaking space keeps the break after "Ferienwohnung"
+                  on very narrow phones instead of splitting the name. */}
+              Ferienwohnung Zum&nbsp;Biebertal
             </span>
             <span
               className={`font-body text-xs tracking-widest uppercase transition-colors duration-300 ${

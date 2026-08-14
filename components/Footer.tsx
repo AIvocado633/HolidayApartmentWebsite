@@ -31,14 +31,14 @@ const Footer = (): React.JSX.Element => {
           <div className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
             <div className="flex flex-col gap-1">
               <span className="font-heading text-xl font-semibold text-cream">
-                Villa XYZ
+                Zum Biebertal
               </span>
               <span className="font-body text-xs tracking-widest uppercase text-cream/50">
                 Ferienwohnung
               </span>
             </div>
             <p className="font-body text-sm text-cream/70 leading-relaxed max-w-xs">
-              Eine gemütliche Souterrainwohnung in einem kleinen Dorf mitten
+              Eine gemütliche Souterrainwohnung in Kleinsassen mitten
               in der Rhön – für alle, die echte Natur und Stille suchen.
             </p>
 
@@ -126,7 +126,7 @@ const Footer = (): React.JSX.Element => {
               <span className="font-body text-sm">
                 Sandroth 15
                 <br />
-                36145 Kleinsassen
+                36145 Hofbieber/Kleinsassen
                 <br />
                 Hessen, Deutschland
               </span>
@@ -139,7 +139,7 @@ const Footer = (): React.JSX.Element => {
       <div className="border-t border-cream/10">
         <div className="section-container section-padding py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="font-body text-xs text-cream/40">
-            © {currentYear} Ferienwohnung XYZ. Alle Rechte vorbehalten.
+            © {currentYear} Ferienwohnung Zum Biebertal. Alle Rechte vorbehalten.
           </p>
           <p className="font-body text-xs text-cream/30">
             Mit Liebe zur Natur gestaltet.
