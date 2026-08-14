@@ -3,14 +3,8 @@ import {
   Car,
   ChefHat,
   Mountain,
-  Flower2,
-  WashingMachine,
-  Flame,
   TreePine,
-  UtensilsCrossed,
-  Coffee,
   MapPin,
-  Baby,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -32,19 +26,9 @@ const AMENITIES: Amenity[] = [
     description: 'Herd, Backofen, Kühlschrank, Kaffeemaschine und alles Wichtige',
   },
   {
-    icon: WashingMachine,
-    label: 'Waschmaschine',
-    description: 'Zur freien Verfügung während des Aufenthalts',
-  },
-  {
     icon: Car,
     label: 'Kostenfreie Parkmöglichkeit',
     description: 'Ausreichend Parkmöglichkeiten direkt vor dem Haus',
-  },
-  {
-    icon: Flower2,
-    label: 'Eigener Gartenbereich',
-    description: 'Ruhige Sitzecke im Grünen – für entspannte Abende draussen',
   },
   {
     icon: Mountain,
@@ -52,34 +36,15 @@ const AMENITIES: Amenity[] = [
     description: 'Direkter Einstieg ins Rhöner Wegenetz – kein Auto nötig',
   },
   {
-    icon: UtensilsCrossed,
-    label: 'Grill / BBQ',
-    description: 'Holzkohlegrill auf der Terrasse zur Mitbenutzung',
-  },
-  {
-    icon: Flame,
-    label: 'Gemütliche Wärme',
-    description: 'Elektrische Heizung und gemütliches Wohngefühl im Souterrain',
-  },
-  {
     icon: TreePine,
     label: 'Natur & Stille',
     description: 'Kleines Dorf, kein Durchgangsverkehr – echte Erholung',
   },
   {
-    icon: Coffee,
-    label: 'Willkommenskorb',
-    description: 'Lokale Produkte und Kaffee zur Begrüßung',
-  },
-  {
     icon: MapPin,
     label: 'Zentrale Lage in der Rhön',
-    description: 'Nähe zu Wasserkuppe, Fulda und den schönsten Aussichtspunkten',
-  },
-  {
-    icon: Baby,
-    label: 'Familienfreundlich',
-    description: 'Reisebett und Kinderstuhl auf Anfrage verfügbar',
+    description:
+      'Nähe zu Milseburg, Wasserkuppe, Fulda und den schönsten Aussichtspunkten',
   },
 ];
 
@@ -129,7 +94,7 @@ const Amenities = (): React.JSX.Element => {
 
         {/* Amenity grid */}
         <ul
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
           role="list"
         >
           {AMENITIES.map((amenity) => (
