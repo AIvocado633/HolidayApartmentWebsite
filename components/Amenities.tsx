@@ -2,6 +2,7 @@ import {
   Wifi,
   Car,
   ChefHat,
+  BedDouble,
   Mountain,
   TreePine,
   MapPin,
@@ -24,6 +25,11 @@ const AMENITIES: Amenity[] = [
     icon: ChefHat,
     label: 'Voll ausgestattete Küche',
     description: 'Herd, Backofen, Kühlschrank, Kaffeemaschine und alles Wichtige',
+  },
+  {
+    icon: BedDouble,
+    label: 'Bettwäsche & Handtücher',
+    description: 'Bettwäsche, Handtücher und Fön werden gestellt',
   },
   {
     icon: Car,
