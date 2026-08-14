@@ -82,8 +82,8 @@ const ContactForm = (): React.JSX.Element => {
                 { label: 'Adresse', value: 'Sandroth 15, 36145 Hofbieber/Kleinsassen' },
                 { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
                 { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
-                { label: 'Kaution', value: '200 € (wird nach Abreise zurücküberwiesen)' },
-                { label: 'Anzahlung', value: '50 % zur Buchungsbestätigung erforderlich' },
+                { label: 'Kaution', value: '100 € (wird nach Abreise zurücküberwiesen)' },
+                { label: 'Kurtaxe', value: '1 € pro Person und Tag' },
               ].map(({ label, value }) => (
                 <div key={label} className="flex flex-col gap-0.5">
                   <dt className="font-body text-xs font-semibold uppercase tracking-widest text-warm-500">

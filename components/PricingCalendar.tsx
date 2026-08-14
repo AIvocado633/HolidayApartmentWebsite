@@ -296,7 +296,7 @@ const PricingCalendar = (): React.JSX.Element => {
                   className="text-warm-500 mt-0.5 flex-shrink-0"
                   aria-hidden="true"
                 />
-                Kaution: 200 € (wird nach Abreise zurücküberwiesen)
+                Kaution: 100 € (wird nach Abreise zurücküberwiesen)
               </li>
               <li className="flex items-start gap-2">
                 <Check
@@ -304,7 +304,7 @@ const PricingCalendar = (): React.JSX.Element => {
                   className="text-warm-500 mt-0.5 flex-shrink-0"
                   aria-hidden="true"
                 />
-                50 % Anzahlung zur Buchungsbestätigung erforderlich
+                Kurtaxe: 1 € pro Person und Tag
               </li>
             </ul>
           </div>
