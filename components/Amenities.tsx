@@ -2,6 +2,8 @@ import {
   Wifi,
   Car,
   ChefHat,
+  BedDouble,
+  Bath,
   Mountain,
   TreePine,
   MapPin,
@@ -24,6 +26,16 @@ const AMENITIES: Amenity[] = [
     icon: ChefHat,
     label: 'Voll ausgestattete Küche',
     description: 'Herd, Backofen, Kühlschrank, Kaffeemaschine und alles Wichtige',
+  },
+  {
+    icon: BedDouble,
+    label: 'Schlafen für 2–4',
+    description: 'Doppelbett im Schlafzimmer, dazu ein Schlafsofa im Wohnzimmer',
+  },
+  {
+    icon: Bath,
+    label: 'Bettwäsche & Handtücher',
+    description: 'Bettwäsche, Handtücher und Fön werden gestellt',
   },
   {
     icon: Car,
@@ -94,7 +106,7 @@ const Amenities = (): React.JSX.Element => {
 
         {/* Amenity grid */}
         <ul
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           role="list"
         >
           {AMENITIES.map((amenity) => (
