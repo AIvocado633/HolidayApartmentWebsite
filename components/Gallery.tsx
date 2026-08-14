@@ -1,17 +1,16 @@
 import Image, { type StaticImageData } from 'next/image';
 import livingRoom from '../pictures/web/wohnzimmer.jpg';
 import kitchen from '../pictures/web/kueche.jpg';
-import bedroom from '../pictures/web/schlafzimmer.jpg';
 import bathroom from '../pictures/web/bad.jpg';
-// Same file the hero uses, so the browser reuses the already-downloaded copy.
-import surroundings from '../pictures/web/rhoen-landschaft.jpg';
+import wasserkuppe from '../pictures/web/wasserkuppe.jpg';
+import milseburg from '../pictures/web/milseburg.jpg';
 
 type GalleryImage = {
   id: string;
   src: StaticImageData;
   label: string;
   alt: string;
-  aspect: 'video' | 'square' | 'portrait';
+  aspect: 'video' | 'portrait' | 'landscape';
 };
 
 const GALLERY_IMAGES: GalleryImage[] = [
@@ -30,13 +29,6 @@ const GALLERY_IMAGES: GalleryImage[] = [
     aspect: 'video',
   },
   {
-    id: 'schlafzimmer',
-    src: bedroom,
-    label: 'Schlafzimmer',
-    alt: 'Schlafzimmer mit Doppelbett, Nachttisch und großem Kleiderschrank mit Spiegeltüren',
-    aspect: 'video',
-  },
-  {
     id: 'bad',
     src: bathroom,
     label: 'Badezimmer',
@@ -44,27 +36,42 @@ const GALLERY_IMAGES: GalleryImage[] = [
     aspect: 'portrait',
   },
   {
-    id: 'umgebung',
-    src: surroundings,
-    label: 'Umgebung',
-    alt: 'Blick auf einen bewaldeten Rhönberg direkt hinter dem Dorf',
-    aspect: 'square',
+    id: 'wasserkuppe',
+    src: wasserkuppe,
+    label: 'Wasserkuppe',
+    alt: 'Wanderer auf einem Wiesenweg zur Wasserkuppe, oben die Radarkuppel unter Sommerwolken',
+    aspect: 'landscape',
+  },
+  {
+    id: 'milseburg',
+    src: milseburg,
+    label: 'Milseburg',
+    alt: 'Herbstlicher Blick von der Maulkuppe über bunte Wälder auf den Felsgipfel der Milseburg',
+    aspect: 'video',
   },
 ];
 
 // The aspect ratio sets the tile height while it is alone in its row. As soon as
 // a tile shares a row with a taller one it drops the ratio and stretches to the
 // row height instead, so every row keeps a flush bottom edge.
+//
+// At least one tile per row has to keep its ratio, otherwise the row has no
+// height to stretch to and collapses. In the second row that is `landscape` and
+// the wide Milseburg tile, since `portrait` has gone to `aspect-auto` by the
+// time the grid is four columns wide.
+//
+// The two-column `video` tiles are also what keeps the rows full: five tiles in
+// a four-column grid only add up if three of them span two columns each.
 const ASPECT_CLASSES: Record<GalleryImage['aspect'], string> = {
   video: 'aspect-video sm:col-span-2',
   portrait: 'aspect-[3/4] lg:aspect-auto',
-  square: 'aspect-square sm:aspect-auto',
+  landscape: 'aspect-[4/3]',
 };
 
 const SIZES: Record<GalleryImage['aspect'], string> = {
   video: '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw',
   portrait: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw',
-  square: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw',
+  landscape: '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw',
 };
 
 type GalleryItemProps = {
@@ -116,8 +123,8 @@ const Gallery = (): React.JSX.Element => {
             Ein Blick in die Ferienwohnung
           </h2>
           <p className="font-body text-base text-accent-muted max-w-lg leading-relaxed">
-            Wohnzimmer, Küche, Schlafzimmer und Bad – seht selbst, wie ihr bei uns
-            wohnt. Und was direkt vor der Haustür auf euch wartet.
+            Wohnzimmer, Küche und Bad – seht selbst, wie ihr bei uns wohnt.
+            Und was direkt vor der Haustür auf euch wartet.
           </p>
         </header>
 
@@ -133,7 +140,7 @@ const Gallery = (): React.JSX.Element => {
         </div>
 
         <p className="font-body text-sm text-warm-500 text-center mt-6">
-          {GALLERY_IMAGES.length} Fotos · Wohnzimmer, Küche, Schlafzimmer & Bad
+          {GALLERY_IMAGES.length} Fotos · Wohnzimmer, Küche &amp; Bad · Rhön ringsum
         </p>
       </div>
     </section>
