@@ -44,8 +44,9 @@ const IMAGES = [
   { src: 'PXL_20220312_125022632.jpg', out: 'rhoen-landschaft', maxEdge: 2000 },
   { src: 'PXL_20260814_181503048.MP.jpg', out: 'wohnzimmer', maxEdge: 1600 },
   { src: 'PXL_20260814_173422846.jpg', out: 'kueche', maxEdge: 1600 },
-  { src: 'PXL_20260814_174637756.MP.jpg', out: 'schlafzimmer', maxEdge: 1600 },
   { src: 'PXL_20260814_175019383.MP.jpg', out: 'bad', maxEdge: 1600 },
+  { src: 'BlickAufWasserkuppe.jpeg', out: 'wasserkuppe', maxEdge: 1600 },
+  { src: 'BlickVonMaulkuppeAufDieMilseburg.jpeg', out: 'milseburg', maxEdge: 1600 },
 ];
 
 const kb = (bytes) => `${(bytes / 1024).toFixed(0)} KB`;
