@@ -1,254 +1,187 @@
-import { Check, Tag } from 'lucide-react';
+'use client';
 
-type SeasonTier = {
-  id: string;
-  label: string;
-  dateRange: string;
-  pricePerNight: number;
-  minNights: number;
-  highlights: string[];
-  isMostPopular: boolean;
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { useBookingDates } from '@/components/BookingDatesProvider';
+import { BOOKABLE_MONTHS_AHEAD, PRICE_PER_NIGHT_EUR } from '@/lib/site';
+import {
+  MONTH_NAMES,
+  WEEKDAY_LABELS,
+  buildIsoDate,
+  daysInMonth,
+  firstWeekdayOfMonth,
+  formatEuros,
+  formatGermanDate,
+  formatGermanDateLong,
+  nightsBetween,
+  toIsoDate,
+} from '@/lib/dates';
+
+type MonthGridProps = {
+  year: number;
+  month: number;
+  today: string;
+  lastSelectable: string;
+  checkIn: string;
+  checkOut: string;
+  onSelect: (isoDate: string) => void;
 };
 
-const SEASON_TIERS: SeasonTier[] = [
-  {
-    id: 'low',
-    label: 'Nebensaison',
-    dateRange: 'Nov – Mär (ohne Weihnachten)',
-    pricePerNight: 65,
-    minNights: 2,
-    highlights: [
-      'Ruhige Winterlandschaft',
-      'Gemütliche Abende zuhause',
-      'Wenig Trubel im Dorf',
-    ],
-    isMostPopular: false,
-  },
-  {
-    id: 'mid',
-    label: 'Zwischensaison',
-    dateRange: 'Apr – Mai · Okt',
-    pricePerNight: 80,
-    minNights: 3,
-    highlights: [
-      'Frühlingswiesen und Vogelstimmen',
-      'Ideales Wanderwetter',
-      'Wenig Hochsaison-Betrieb',
-    ],
-    isMostPopular: false,
-  },
-  {
-    id: 'high',
-    label: 'Hauptsaison',
-    dateRange: 'Jun – Sep',
-    pricePerNight: 100,
-    minNights: 5,
-    highlights: [
-      'Lange Sommerabende im Garten',
-      'Beste Wanderbedingungen',
-      'Wochenmärkte und Dorffeste',
-    ],
-    isMostPopular: true,
-  },
-  {
-    id: 'festive',
-    label: 'Weihnachten & Silvester',
-    dateRange: '20. Dez – 6. Jan',
-    pricePerNight: 115,
-    minNights: 5,
-    highlights: [
-      'Stille Weihnachten auf dem Land',
-      'Verschneite Rhön-Landschaft',
-      'Silvester in der Natur',
-    ],
-    isMostPopular: false,
-  },
-];
+const MonthGrid = ({
+  year,
+  month,
+  today,
+  lastSelectable,
+  checkIn,
+  checkOut,
+  onSelect,
+}: MonthGridProps): React.JSX.Element => {
+  const leadingBlanks = firstWeekdayOfMonth(year, month);
+  const dayCount = daysInMonth(year, month);
 
-// Static calendar data for a sample month (July)
-const CALENDAR_DAYS = Array.from({ length: 31 }, (_, i) => i + 1);
-const WEEK_OFFSET = 2; // July 1 starts on Tuesday (0=Mon)
-const BOOKED_RANGES: [number, number][] = [
-  [5, 12],
-  [19, 26],
-];
-const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-const isDayBooked = (day: number): boolean =>
-  BOOKED_RANGES.some(([start, end]) => day >= start && day <= end);
-
-const isDayCheckInOut = (day: number): boolean =>
-  BOOKED_RANGES.some(([start, end]) => day === start || day === end);
-
-type PricingCardProps = {
-  tier: SeasonTier;
-};
-
-const PricingCard = ({ tier }: PricingCardProps): React.JSX.Element => {
   return (
-    <article
-      className={`relative flex flex-col p-6 border transition-shadow duration-200 ${
-        tier.isMostPopular
-          ? 'border-accent bg-accent text-cream shadow-lg'
-          : 'border-beige bg-white card'
-      }`}
-    >
-      {tier.isMostPopular && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <span className="inline-flex items-center gap-1 bg-warm-400 text-white text-xs font-semibold px-3 py-1 uppercase tracking-wider">
-            <Tag size={10} />
-            Beliebteste Wahl
-          </span>
-        </div>
-      )}
-
-      <div className="flex flex-col gap-1 mb-4">
-        <p
-          className={`label-overline ${
-            tier.isMostPopular ? 'text-cream/60' : ''
-          }`}
-        >
-          {tier.label}
-        </p>
-        <p
-          className={`font-body text-xs ${
-            tier.isMostPopular ? 'text-cream/70' : 'text-warm-500'
-          }`}
-        >
-          {tier.dateRange}
-        </p>
-      </div>
-
-      <div className="flex items-baseline gap-1 mb-1">
-        <span
-          className={`font-heading text-4xl font-semibold ${
-            tier.isMostPopular ? 'text-cream' : 'text-accent'
-          }`}
-        >
-          €{tier.pricePerNight}
-        </span>
-        <span
-          className={`font-body text-sm ${
-            tier.isMostPopular ? 'text-cream/70' : 'text-warm-500'
-          }`}
-        >
-          / night
-        </span>
-      </div>
-      <p
-        className={`font-body text-xs mb-6 ${
-          tier.isMostPopular ? 'text-cream/60' : 'text-warm-400'
-        }`}
-      >
-        Min. {tier.minNights} nights
+    <div className="flex flex-col gap-3">
+      <p className="font-body text-sm font-semibold text-accent text-center">
+        {MONTH_NAMES[month]} {year}
       </p>
 
-      <ul className="flex flex-col gap-2 flex-1" role="list">
-        {tier.highlights.map((highlight) => (
-          <li key={highlight} className="flex items-start gap-2">
-            <Check
-              size={14}
-              className={`mt-0.5 flex-shrink-0 ${
-                tier.isMostPopular ? 'text-warm-300' : 'text-warm-500'
-              }`}
-              aria-hidden="true"
-            />
-            <span
-              className={`font-body text-sm ${
-                tier.isMostPopular ? 'text-cream/80' : 'text-accent-muted'
-              }`}
-            >
-              {highlight}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <a
-        href="#contact"
-        className={`mt-6 btn-outline w-full justify-center text-sm py-2.5 ${
-          tier.isMostPopular
-            ? 'border-cream/50 text-cream hover:bg-cream/10'
-            : ''
-        }`}
-      >
-        Anfragen
-      </a>
-    </article>
-  );
-};
-
-const CalendarGrid = (): React.JSX.Element => {
-  const totalCells = WEEK_OFFSET + CALENDAR_DAYS.length;
-  const paddedCells = Math.ceil(totalCells / 7) * 7;
-
-  return (
-    <div className="bg-white border border-beige p-6">
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="heading-sm text-accent">July 2026</h3>
-        <div className="flex items-center gap-4 text-xs font-body text-warm-500">
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-warm-200 inline-block" />
-            Booked
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 bg-white border border-beige inline-block" />
-            Available
-          </span>
-        </div>
-      </div>
-
-      {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
-        {WEEKDAY_LABELS.map((day) => (
+      <div className="grid grid-cols-7 gap-1" aria-hidden="true">
+        {WEEKDAY_LABELS.map((label) => (
           <div
-            key={day}
+            key={label}
             className="text-center font-body text-xs font-semibold text-warm-500 uppercase tracking-wider py-1"
           >
-            {day}
+            {label}
           </div>
         ))}
       </div>
 
-      {/* Day cells */}
       <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: paddedCells }, (_, cellIndex) => {
-          const dayNumber = cellIndex - WEEK_OFFSET + 1;
-          const isValidDay = dayNumber >= 1 && dayNumber <= 31;
+        {Array.from({ length: leadingBlanks }, (_, index) => (
+          <div key={`blank-${index}`} className="aspect-square" />
+        ))}
 
-          if (!isValidDay) {
-            return <div key={`empty-${cellIndex}`} className="aspect-square" />;
-          }
+        {Array.from({ length: dayCount }, (_, index) => {
+          const day = index + 1;
+          const isoDate = buildIsoDate(year, month, day);
 
-          const booked = isDayBooked(dayNumber);
-          const checkInOut = isDayCheckInOut(dayNumber);
+          const isSelectable = isoDate >= today && isoDate <= lastSelectable;
+          const isCheckIn = isoDate === checkIn;
+          const isCheckOut = isoDate === checkOut;
+          const isBetween =
+            checkIn !== '' &&
+            checkOut !== '' &&
+            isoDate > checkIn &&
+            isoDate < checkOut;
+
+          const edgeClasses = 'bg-accent text-cream font-semibold';
+          const betweenClasses = 'bg-warm-200 text-accent';
+          const openClasses =
+            'bg-white text-accent hover:bg-warm-100 hover:text-accent';
+          const blockedClasses = 'text-warm-300 cursor-not-allowed';
+
+          const stateClasses = !isSelectable
+            ? blockedClasses
+            : isCheckIn || isCheckOut
+              ? edgeClasses
+              : isBetween
+                ? betweenClasses
+                : openClasses;
+
+          const roleLabel = isCheckIn
+            ? ' – als Anreise gewählt'
+            : isCheckOut
+              ? ' – als Abreise gewählt'
+              : '';
 
           return (
-            <div
-              key={dayNumber}
-              className={`aspect-square flex items-center justify-center text-sm font-body transition-colors ${
-                booked
-                  ? checkInOut
-                    ? 'bg-warm-300 text-accent font-semibold'
-                    : 'bg-warm-200 text-warm-600'
-                  : 'bg-cream hover:bg-beige-light text-accent cursor-pointer'
-              }`}
-              aria-label={`July ${dayNumber}${booked ? ' - Booked' : ' - Available'}`}
+            <button
+              key={isoDate}
+              type="button"
+              disabled={!isSelectable}
+              onClick={() => onSelect(isoDate)}
+              aria-pressed={isCheckIn || isCheckOut || isBetween}
+              aria-label={`${formatGermanDateLong(isoDate)}${roleLabel}`}
+              className={`aspect-square flex items-center justify-center font-body text-sm transition-colors duration-150 ${stateClasses}`}
             >
-              {dayNumber}
-            </div>
+              {day}
+            </button>
           );
         })}
       </div>
-
-      <p className="font-body text-xs text-warm-400 mt-4 text-center">
-        Beispiel-Verfügbarkeit · Bitte Kontakt aufnehmen für genaue Daten
-      </p>
     </div>
   );
 };
 
 const PricingCalendar = (): React.JSX.Element => {
+  const { checkIn, checkOut, setCheckIn, setCheckOut, clearDates } =
+    useBookingDates();
+
+  // Resolved after mount. The page is prerendered at build time, so deriving the
+  // visible months from a build-time "today" would both bake in a stale month
+  // and trip a hydration mismatch once the build is a few days old.
+  const [today, setToday] = useState<string>('');
+  const [monthOffset, setMonthOffset] = useState<number>(0);
+
+  useEffect(() => {
+    setToday(toIsoDate(new Date()));
+  }, []);
+
+  const { months, lastSelectable, canGoBack, canGoForward } = useMemo(() => {
+    if (today === '') {
+      return {
+        months: [],
+        lastSelectable: '',
+        canGoBack: false,
+        canGoForward: false,
+      };
+    }
+
+    const now = new Date(`${today}T00:00:00`);
+    const baseYear = now.getFullYear();
+    const baseMonth = now.getMonth();
+
+    // A second grid appears from `lg` up, so the window can run one month past
+    // the offset. Both are clamped to the bookable range.
+    const visible = [0, 1].map((step) => {
+      const cursor = new Date(baseYear, baseMonth + monthOffset + step, 1);
+      return { year: cursor.getFullYear(), month: cursor.getMonth() };
+    });
+
+    const lastDate = new Date(baseYear, baseMonth + BOOKABLE_MONTHS_AHEAD + 1, 0);
+
+    return {
+      months: visible,
+      lastSelectable: toIsoDate(lastDate),
+      canGoBack: monthOffset > 0,
+      canGoForward: monthOffset < BOOKABLE_MONTHS_AHEAD - 1,
+    };
+  }, [today, monthOffset]);
+
+  const handleSelect = (isoDate: string): void => {
+    // First click, a click once a range is already complete, or a click at or
+    // before the current arrival all begin a new stay. Anything else closes the
+    // open one.
+    const startsNewStay = checkIn === '' || checkOut !== '' || isoDate <= checkIn;
+
+    if (startsNewStay) {
+      // Clearing first matters for the completed-range case: setCheckIn on its
+      // own only drops a departure that falls on or before the new arrival, so
+      // clicking inside a finished range would silently narrow it instead of
+      // starting over.
+      clearDates();
+      setCheckIn(isoDate);
+      return;
+    }
+
+    setCheckOut(isoDate);
+  };
+
+  const nights =
+    checkIn !== '' && checkOut !== '' ? nightsBetween(checkIn, checkOut) : 0;
+  const total = nights * PRICE_PER_NIGHT_EUR;
+
   return (
     <section
       id="pricing"
@@ -256,58 +189,162 @@ const PricingCalendar = (): React.JSX.Element => {
       aria-labelledby="pricing-heading"
     >
       <div className="section-container section-padding">
-        {/* Section header */}
-        <header className="flex flex-col items-center text-center gap-4 mb-16">
-          <p className="label-overline">Preise &amp; Verfügbarkeit</p>
+        <header className="flex flex-col items-center text-center gap-4 mb-14">
+          <p className="label-overline">Preise &amp; Zeitraum</p>
           <h2 id="pricing-heading" className="heading-lg max-w-xl">
-            Faire Preise, ehrliche Saisons
+            {formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht
           </h2>
           <p className="font-body text-base text-accent-muted max-w-lg leading-relaxed">
-            Alle Preise pro Nacht für bis zu 4 Personen inkl. Bettwäsche und
-            Handtücher. Endreinigung und Kurtaxe kommen hinzu.
+            Der gleiche Preis das ganze Jahr über, für bis zu vier Personen
+            inklusive Bettwäsche und Handtüchern. Sucht euch unten euren
+            Zeitraum aus – die Daten werden direkt in die Anfrage übernommen.
           </p>
         </header>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 items-start">
-          {/* Pricing tiers */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-3">
-            {SEASON_TIERS.map((tier) => (
-              <PricingCard key={tier.id} tier={tier} />
-            ))}
-          </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-10 items-start">
           {/* Calendar */}
-          <div className="flex flex-col gap-4">
-            <CalendarGrid />
+          <div className="bg-white border border-beige p-5 sm:p-7">
+            <div className="flex items-center justify-between mb-5">
+              <button
+                type="button"
+                onClick={() => setMonthOffset((previous) => previous - 1)}
+                disabled={!canGoBack}
+                className="p-2 text-accent-muted hover:text-accent disabled:text-warm-300 disabled:cursor-not-allowed transition-colors duration-200"
+                aria-label="Vorherigen Monat anzeigen"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <p className="font-body text-xs uppercase tracking-widest text-warm-500">
+                Zeitraum wählen
+              </p>
+              <button
+                type="button"
+                onClick={() => setMonthOffset((previous) => previous + 1)}
+                disabled={!canGoForward}
+                className="p-2 text-accent-muted hover:text-accent disabled:text-warm-300 disabled:cursor-not-allowed transition-colors duration-200"
+                aria-label="Nächsten Monat anzeigen"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
 
-            {/* Additional notes */}
-            <ul className="flex flex-col gap-2 text-sm font-body text-accent-muted px-1">
-              <li className="flex items-start gap-2">
-                <Check
-                  size={14}
-                  className="text-warm-500 mt-0.5 flex-shrink-0"
-                  aria-hidden="true"
-                />
-                Check-in ab 15:00 Uhr · Check-out bis 10:00 Uhr
-              </li>
-              <li className="flex items-start gap-2">
-                <Check
-                  size={14}
-                  className="text-warm-500 mt-0.5 flex-shrink-0"
-                  aria-hidden="true"
-                />
-                Kaution: 100 € (wird nach Abreise zurücküberwiesen)
-              </li>
-              <li className="flex items-start gap-2">
-                <Check
-                  size={14}
-                  className="text-warm-500 mt-0.5 flex-shrink-0"
-                  aria-hidden="true"
-                />
-                Kurtaxe: 1 € pro Person und Tag
-              </li>
-            </ul>
+            {months.length === 0 ? (
+              // Placeholder until `today` resolves on the client, so the section
+              // does not jump in height on hydration.
+              <div className="min-h-[19rem]" aria-hidden="true" />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {months.map(({ year, month }, index) => (
+                  <div
+                    key={`${year}-${month}`}
+                    className={index === 1 ? 'hidden lg:block' : undefined}
+                  >
+                    <MonthGrid
+                      year={year}
+                      month={month}
+                      today={today}
+                      lastSelectable={lastSelectable}
+                      checkIn={checkIn}
+                      checkOut={checkOut}
+                      onSelect={handleSelect}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 pt-5 border-t border-beige text-xs font-body text-warm-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 bg-accent inline-block" aria-hidden="true" />
+                An- und Abreise
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 bg-warm-200 inline-block" aria-hidden="true" />
+                Gewählter Zeitraum
+              </span>
+            </div>
           </div>
+
+          {/* Summary */}
+          <aside
+            className="bg-white border border-beige p-6 flex flex-col gap-5 lg:sticky lg:top-28"
+            aria-label="Preisübersicht"
+          >
+            <h3 className="heading-sm text-accent">Euer Zeitraum</h3>
+
+            <dl className="flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-4">
+                <dt className="font-body text-sm text-accent-muted">Anreise</dt>
+                <dd className="font-body text-sm text-accent">
+                  {checkIn === '' ? '–' : formatGermanDate(checkIn)}
+                </dd>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <dt className="font-body text-sm text-accent-muted">Abreise</dt>
+                <dd className="font-body text-sm text-accent">
+                  {checkOut === '' ? '–' : formatGermanDate(checkOut)}
+                </dd>
+              </div>
+            </dl>
+
+            <div
+              className="pt-4 border-t border-beige flex flex-col gap-3"
+              aria-live="polite"
+            >
+              {nights > 0 ? (
+                <>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="font-body text-sm text-accent-muted">
+                      {nights} {nights === 1 ? 'Nacht' : 'Nächte'} ×{' '}
+                      {formatEuros(PRICE_PER_NIGHT_EUR)}
+                    </span>
+                    <span className="font-heading text-2xl font-semibold text-accent">
+                      {formatEuros(total)}
+                    </span>
+                  </div>
+                  <p className="font-body text-xs text-warm-500 leading-relaxed">
+                    Zzgl. Kurtaxe von 1 € pro Person und Tag. Die Kaution von
+                    100 € wird nach der Abreise zurücküberwiesen.
+                  </p>
+                </>
+              ) : (
+                <p className="font-body text-sm text-accent-muted leading-relaxed">
+                  {checkIn === ''
+                    ? 'Wählt im Kalender euren Anreisetag.'
+                    : 'Wählt jetzt noch den Abreisetag.'}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Link
+                href="#contact"
+                className="btn-primary w-full justify-center gap-2"
+              >
+                <CalendarDays size={16} aria-hidden="true" />
+                Verfügbarkeit anfragen
+              </Link>
+              {(checkIn !== '' || checkOut !== '') && (
+                <button
+                  type="button"
+                  onClick={clearDates}
+                  className="btn-ghost w-full justify-center text-xs"
+                >
+                  Auswahl zurücksetzen
+                </button>
+              )}
+            </div>
+
+            <p className="flex items-start gap-2 font-body text-xs text-warm-500 leading-relaxed">
+              <Check
+                size={13}
+                className="mt-0.5 flex-shrink-0"
+                aria-hidden="true"
+              />
+              Der Kalender zeigt keine Belegung. Ob euer Zeitraum frei ist,
+              bestätigen wir euch mit der Antwort auf eure Anfrage.
+            </p>
+          </aside>
         </div>
       </div>
     </section>

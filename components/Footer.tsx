@@ -18,6 +18,7 @@ type FooterLink = {
 const NAVIGATION_LINKS: FooterLink[] = [
   { label: 'Ausstattung', href: '/#amenities' },
   { label: 'Fotogalerie', href: '/#gallery' },
+  { label: 'Preise', href: '/#pricing' },
   { label: 'Jetzt anfragen', href: '/#contact' },
 ];
 

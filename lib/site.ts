@@ -17,6 +17,14 @@ export const SITE_URL = 'https://aivocado633.github.io/HolidayApartmentWebsite';
 export const SITE_DESCRIPTION =
   'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.';
 
+// A single flat rate for every night, all year. If seasonal pricing is ever
+// wanted, this is the constant that turns into a lookup by date — the calendar
+// already prices each night individually rather than multiplying a total.
+export const PRICE_PER_NIGHT_EUR = 65;
+
+// How far ahead the price calendar lets guests look.
+export const BOOKABLE_MONTHS_AHEAD = 12;
+
 type PostalAddress = {
   street: string;
   postalCode: string;

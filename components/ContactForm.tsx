@@ -16,12 +16,14 @@ import {
   MessageSquare,
   AlertCircle,
 } from 'lucide-react';
+import { useBookingDates } from '@/components/BookingDatesProvider';
 import {
   ADDRESS_INLINE,
   CONTACT_EMAIL,
   CONTACT_EMAIL_HREF,
   CONTACT_PHONE,
 } from '@/lib/site';
+import { toIsoDate } from '@/lib/dates';
 
 // Booking enquiries are delivered by Formhook, because the site is a static
 // export and has no server of its own to post to. Formhook keeps submissions in
@@ -57,17 +59,24 @@ const CONTACT_DETAILS: ContactDetail[] = [
   { label: 'Kurtaxe', value: '1 € pro Person und Tag' },
 ];
 
+// The stay dates are deliberately absent here: they live in BookingDatesProvider
+// so that the price calendar and these two fields stay in step.
 type FormState = {
   name: string;
   email: string;
   phone: string;
-  checkIn: string;
-  checkOut: string;
   guests: string;
   message: string;
 };
 
-type FieldErrors = Partial<Record<keyof FormState, string>>;
+type StayDates = {
+  checkIn: string;
+  checkOut: string;
+};
+
+type ValidatedField = keyof FormState | keyof StayDates;
+
+type FieldErrors = Partial<Record<ValidatedField, string>>;
 
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -75,26 +84,17 @@ const INITIAL_FORM_STATE: FormState = {
   name: '',
   email: '',
   phone: '',
-  checkIn: '',
-  checkOut: '',
   guests: '2',
   message: '',
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// Dates are compared as ISO strings, so they have to be built from the local
-// calendar day — toISOString() reports the UTC day and would roll over to
-// tomorrow during the evening in German time zones.
-const toIsoDate = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-};
-
-const validate = (data: FormState, today: string): FieldErrors => {
+const validate = (
+  data: FormState,
+  { checkIn, checkOut }: StayDates,
+  today: string
+): FieldErrors => {
   const errors: FieldErrors = {};
 
   if (data.name.trim().length < 2) {
@@ -107,15 +107,15 @@ const validate = (data: FormState, today: string): FieldErrors => {
     errors.email = 'Diese E-Mail-Adresse sieht nicht vollständig aus.';
   }
 
-  if (data.checkIn === '') {
+  if (checkIn === '') {
     errors.checkIn = 'Bitte wählt ein Anreisedatum.';
-  } else if (data.checkIn < today) {
+  } else if (checkIn < today) {
     errors.checkIn = 'Das Anreisedatum liegt in der Vergangenheit.';
   }
 
-  if (data.checkOut === '') {
+  if (checkOut === '') {
     errors.checkOut = 'Bitte wählt ein Abreisedatum.';
-  } else if (data.checkIn !== '' && data.checkOut <= data.checkIn) {
+  } else if (checkIn !== '' && checkOut <= checkIn) {
     errors.checkOut = 'Die Abreise muss nach der Anreise liegen.';
   }
 
@@ -143,6 +143,8 @@ const FieldError = ({
 };
 
 const ContactForm = (): React.JSX.Element => {
+  const { checkIn, checkOut, setCheckIn, setCheckOut, clearDates } =
+    useBookingDates();
   const [formData, setFormData] = useState<FormState>(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
@@ -155,15 +157,8 @@ const ContactForm = (): React.JSX.Element => {
     setToday(toIsoDate(new Date()));
   }, []);
 
-  const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ): void => {
-    const { name, value } = event.target;
-    const field = name as keyof FormState;
-
-    setFormData((prev) => ({ ...prev, [field]: value }));
-
-    // Drop the error as soon as the guest starts correcting the field.
+  // Drop the error as soon as the guest starts correcting that field.
+  const clearError = (field: ValidatedField): void => {
     setErrors((prev) => {
       if (prev[field] === undefined) {
         return prev;
@@ -176,6 +171,28 @@ const ContactForm = (): React.JSX.Element => {
     });
   };
 
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ): void => {
+    const { name, value } = event.target;
+    const field = name as keyof FormState;
+
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    clearError(field);
+  };
+
+  // The two date fields write through to the shared booking dates rather than to
+  // local state, so editing them here moves the calendar selection as well.
+  const handleCheckInChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setCheckIn(event.target.value);
+    clearError('checkIn');
+  };
+
+  const handleCheckOutChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setCheckOut(event.target.value);
+    clearError('checkOut');
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
@@ -186,7 +203,11 @@ const ContactForm = (): React.JSX.Element => {
       return;
     }
 
-    const validationErrors = validate(formData, today || toIsoDate(new Date()));
+    const validationErrors = validate(
+      formData,
+      { checkIn, checkOut },
+      today || toIsoDate(new Date())
+    );
     setErrors(validationErrors);
 
     const firstInvalidField = Object.keys(validationErrors)[0];
@@ -219,8 +240,8 @@ const ContactForm = (): React.JSX.Element => {
           Name: formData.name.trim(),
           email: formData.email.trim(),
           Telefon: formData.phone.trim() || '—',
-          Anreise: formData.checkIn,
-          Abreise: formData.checkOut,
+          Anreise: checkIn,
+          Abreise: checkOut,
           Personen: formData.guests,
           Nachricht: formData.message.trim() || '—',
         }),
@@ -232,6 +253,7 @@ const ContactForm = (): React.JSX.Element => {
 
       setSubmitStatus('success');
       setFormData(INITIAL_FORM_STATE);
+      clearDates();
     } catch (error) {
       console.error('Booking enquiry could not be delivered:', error);
       setSubmitStatus('error');
@@ -383,8 +405,8 @@ const ContactForm = (): React.JSX.Element => {
                       id="checkIn"
                       type="date"
                       name="checkIn"
-                      value={formData.checkIn}
-                      onChange={handleChange}
+                      value={checkIn}
+                      onChange={handleCheckInChange}
                       required
                       min={today || undefined}
                       className={`input-field ${errors.checkIn ? 'border-red-600' : ''}`}
@@ -409,10 +431,10 @@ const ContactForm = (): React.JSX.Element => {
                       id="checkOut"
                       type="date"
                       name="checkOut"
-                      value={formData.checkOut}
-                      onChange={handleChange}
+                      value={checkOut}
+                      onChange={handleCheckOutChange}
                       required
-                      min={formData.checkIn || today || undefined}
+                      min={checkIn || today || undefined}
                       className={`input-field ${errors.checkOut ? 'border-red-600' : ''}`}
                       disabled={isSubmitting}
                       aria-invalid={errors.checkOut ? true : undefined}
