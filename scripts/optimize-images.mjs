@@ -41,10 +41,13 @@ const WITH_WEBP = process.argv.includes('--webp');
  * and reuses it for the tile, rather than fetching a second, smaller copy.
  */
 const IMAGES = [
-  { src: 'PXL_20220312_125022632.jpg', out: 'rhoen-landschaft', maxEdge: 2000 },
-  { src: 'PXL_20260814_181503048.MP.jpg', out: 'wohnzimmer', maxEdge: 1600 },
-  { src: 'PXL_20260814_173422846.jpg', out: 'kueche', maxEdge: 1600 },
-  { src: 'PXL_20260814_175019383.MP.jpg', out: 'bad', maxEdge: 1600 },
+  { src: 'Milseburg.jpg', out: 'rhoen-landschaft', maxEdge: 2000 },
+  { src: 'Wohnbereich.jpg', out: 'wohnbereich', maxEdge: 1600 },
+  { src: 'Kueche.jpg', out: 'kueche', maxEdge: 1600 },
+  { src: 'Schlafbereich.jpg', out: 'schlafbereich', maxEdge: 1600 },
+  { src: 'Bad.jpg', out: 'bad', maxEdge: 1600 },
+  // Closes the gallery as a full-width band, but 1600px still covers the widest
+  // it is ever drawn (1201px), so it stays on the tile budget.
   { src: 'BlickAufWasserkuppe.jpeg', out: 'wasserkuppe', maxEdge: 1600 },
   { src: 'BlickVonMaulkuppeAufDieMilseburg.jpeg', out: 'milseburg', maxEdge: 1600 },
 ];
