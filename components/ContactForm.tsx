@@ -55,7 +55,7 @@ const CONTACT_DETAILS: ContactDetail[] = [
   { label: 'Adresse', value: ADDRESS_INLINE },
   { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
   { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
-  { label: 'Kaution', value: '100 € (wird nach Abreise zurücküberwiesen)' },
+  { label: 'Stornierung', value: 'Kostenlos bis 14 Tage vor Anreise' },
   { label: 'Kurtaxe', value: '1 € pro Person und Tag' },
 ];
 

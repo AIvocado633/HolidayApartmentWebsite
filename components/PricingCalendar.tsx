@@ -303,8 +303,8 @@ const PricingCalendar = (): React.JSX.Element => {
                     </span>
                   </div>
                   <p className="font-body text-xs text-warm-500 leading-relaxed">
-                    Zzgl. Kurtaxe von 1 € pro Person und Tag. Die Kaution von
-                    100 € wird nach der Abreise zurücküberwiesen.
+                    Zzgl. Kurtaxe von 1 € pro Person und Tag. Kostenlose
+                    Stornierung bis 14 Tage vor Anreise.
                   </p>
                 </>
               ) : (
