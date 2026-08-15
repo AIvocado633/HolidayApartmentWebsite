@@ -1,7 +1,52 @@
-﻿'use client';
+'use client';
 
-import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { Send, User, Mail, Phone, Calendar, Users, MessageSquare } from 'lucide-react';
+import {
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from 'react';
+import {
+  Send,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  Users,
+  MessageSquare,
+  AlertCircle,
+} from 'lucide-react';
+
+// Booking enquiries are delivered by Formspree, because the site is a static
+// export and has no server of its own to post to. The ID is not a secret — it
+// ships in the page HTML — and the address that receives the enquiries is set in
+// the Formspree dashboard rather than here, so it can change without a redeploy.
+//
+// The submission below is a plain REST call. Do not switch Formspree's reCAPTCHA
+// on for this form: the challenge assumes their redirect flow, and a JSON POST
+// has nowhere to render it. The honeypot field near the end of the form guards
+// against bots instead.
+const FORMSPREE_FORM_ID: string = 'xwlenpbb';
+const IS_FORM_CONFIGURED = FORMSPREE_FORM_ID !== 'REPLACE_WITH_FORMSPREE_ID';
+const FORMSPREE_ENDPOINT = `https://formspree.io/f/${FORMSPREE_FORM_ID}`;
+
+const CONTACT_EMAIL = 'hallo@XYZ-ferien.de';
+const CONTACT_PHONE = '+49 1234 567890';
+
+type ContactDetail = {
+  label: string;
+  value: string;
+};
+
+const CONTACT_DETAILS: ContactDetail[] = [
+  { label: 'E-Mail', value: CONTACT_EMAIL },
+  { label: 'Telefon', value: CONTACT_PHONE },
+  { label: 'Adresse', value: 'Sandroth 15, 36145 Hofbieber/Kleinsassen' },
+  { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
+  { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
+  { label: 'Kaution', value: '100 € (wird nach Abreise zurücküberwiesen)' },
+  { label: 'Kurtaxe', value: '1 € pro Person und Tag' },
+];
 
 type FormState = {
   name: string;
@@ -12,6 +57,8 @@ type FormState = {
   guests: string;
   message: string;
 };
+
+type FieldErrors = Partial<Record<keyof FormState, string>>;
 
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -25,30 +72,162 @@ const INITIAL_FORM_STATE: FormState = {
   message: '',
 };
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Dates are compared as ISO strings, so they have to be built from the local
+// calendar day — toISOString() reports the UTC day and would roll over to
+// tomorrow during the evening in German time zones.
+const toIsoDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+const validate = (data: FormState, today: string): FieldErrors => {
+  const errors: FieldErrors = {};
+
+  if (data.name.trim().length < 2) {
+    errors.name = 'Bitte tragt euren Namen ein.';
+  }
+
+  if (data.email.trim() === '') {
+    errors.email = 'Bitte tragt eure E-Mail-Adresse ein.';
+  } else if (!EMAIL_PATTERN.test(data.email.trim())) {
+    errors.email = 'Diese E-Mail-Adresse sieht nicht vollständig aus.';
+  }
+
+  if (data.checkIn === '') {
+    errors.checkIn = 'Bitte wählt ein Anreisedatum.';
+  } else if (data.checkIn < today) {
+    errors.checkIn = 'Das Anreisedatum liegt in der Vergangenheit.';
+  }
+
+  if (data.checkOut === '') {
+    errors.checkOut = 'Bitte wählt ein Abreisedatum.';
+  } else if (data.checkIn !== '' && data.checkOut <= data.checkIn) {
+    errors.checkOut = 'Die Abreise muss nach der Anreise liegen.';
+  }
+
+  return errors;
+};
+
+type FieldErrorProps = {
+  id: string;
+  message?: string;
+};
+
+const FieldError = ({
+  id,
+  message,
+}: FieldErrorProps): React.JSX.Element | null => {
+  if (message === undefined) {
+    return null;
+  }
+
+  return (
+    <p id={id} className="font-body text-xs text-red-700">
+      {message}
+    </p>
+  );
+};
+
 const ContactForm = (): React.JSX.Element => {
   const [formData, setFormData] = useState<FormState>(INITIAL_FORM_STATE);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
+  const [honeypot, setHoneypot] = useState<string>('');
+  // Resolved after mount so the prerendered HTML does not bake in the build date,
+  // which would drift from the guest's today and trip a hydration mismatch.
+  const [today, setToday] = useState<string>('');
+
+  useEffect(() => {
+    setToday(toIsoDate(new Date()));
+  }, []);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ): void => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const field = name as keyof FormState;
+
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Drop the error as soon as the guest starts correcting the field.
+    setErrors((prev) => {
+      if (prev[field] === undefined) {
+        return prev;
+      }
+
+      const next = { ...prev };
+      delete next[field];
+
+      return next;
+    });
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+
+    // Bots fill in every field they find, including the one hidden from guests.
+    // Show them the same confirmation and send nothing.
+    if (honeypot !== '') {
+      setSubmitStatus('success');
+      return;
+    }
+
+    const validationErrors = validate(formData, today || toIsoDate(new Date()));
+    setErrors(validationErrors);
+
+    const firstInvalidField = Object.keys(validationErrors)[0];
+    if (firstInvalidField !== undefined) {
+      document.getElementById(firstInvalidField)?.focus();
+      return;
+    }
+
+    if (!IS_FORM_CONFIGURED) {
+      console.error(
+        'Booking enquiries cannot be delivered: set FORMSPREE_FORM_ID in components/ContactForm.tsx to the ID of your Formspree form.'
+      );
+      setSubmitStatus('error');
+      return;
+    }
+
     setSubmitStatus('submitting');
 
-    // Simulate async submission (replace with real API call)
-    await new Promise<void>((resolve) => setTimeout(resolve, 1200));
+    try {
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        // German keys so the notification mail reads properly. Formspree picks
+        // up the lowercase `email` field and sets it as the Reply-To, so a reply
+        // goes straight back to the guest.
+        body: JSON.stringify({
+          Name: formData.name.trim(),
+          email: formData.email.trim(),
+          Telefon: formData.phone.trim() || '—',
+          Anreise: formData.checkIn,
+          Abreise: formData.checkOut,
+          Personen: formData.guests,
+          Nachricht: formData.message.trim() || '—',
+          _subject: `Buchungsanfrage ${formData.name.trim()} · ${formData.checkIn} bis ${formData.checkOut}`,
+        }),
+      });
 
-    console.info('Booking enquiry submitted:', formData);
-    setSubmitStatus('success');
-    setFormData(INITIAL_FORM_STATE);
+      if (!response.ok) {
+        throw new Error(`Formspree answered with status ${response.status}`);
+      }
 
-    // Reset success message after 5 seconds
-    setTimeout(() => setSubmitStatus('idle'), 5000);
+      setSubmitStatus('success');
+      setFormData(INITIAL_FORM_STATE);
+    } catch (error) {
+      console.error('Booking enquiry could not be delivered:', error);
+      setSubmitStatus('error');
+    }
   };
 
   const isSubmitting = submitStatus === 'submitting';
@@ -76,15 +255,7 @@ const ContactForm = (): React.JSX.Element => {
             </header>
 
             <dl className="flex flex-col gap-4 pt-2">
-              {[
-                { label: 'E-Mail', value: 'hallo@XYZ-ferien.de' },
-                { label: 'Telefon', value: '+49 1234 567890' },
-                { label: 'Adresse', value: 'Sandroth 15, 36145 Hofbieber/Kleinsassen' },
-                { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
-                { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
-                { label: 'Kaution', value: '100 € (wird nach Abreise zurücküberwiesen)' },
-                { label: 'Kurtaxe', value: '1 € pro Person und Tag' },
-              ].map(({ label, value }) => (
+              {CONTACT_DETAILS.map(({ label, value }) => (
                 <div key={label} className="flex flex-col gap-0.5">
                   <dt className="font-body text-xs font-semibold uppercase tracking-widest text-warm-500">
                     {label}
@@ -133,10 +304,13 @@ const ContactForm = (): React.JSX.Element => {
                       onChange={handleChange}
                       required
                       placeholder="Anna Müller"
-                      className="input-field"
+                      className={`input-field ${errors.name ? 'border-red-600' : ''}`}
                       disabled={isSubmitting}
                       autoComplete="name"
+                      aria-invalid={errors.name ? true : undefined}
+                      aria-describedby={errors.name ? 'name-error' : undefined}
                     />
+                    <FieldError id="name-error" message={errors.name} />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
@@ -155,10 +329,13 @@ const ContactForm = (): React.JSX.Element => {
                       onChange={handleChange}
                       required
                       placeholder="anna@example.com"
-                      className="input-field"
+                      className={`input-field ${errors.email ? 'border-red-600' : ''}`}
                       disabled={isSubmitting}
                       autoComplete="email"
+                      aria-invalid={errors.email ? true : undefined}
+                      aria-describedby={errors.email ? 'email-error' : undefined}
                     />
+                    <FieldError id="email-error" message={errors.email} />
                   </div>
                 </div>
 
@@ -201,9 +378,15 @@ const ContactForm = (): React.JSX.Element => {
                       value={formData.checkIn}
                       onChange={handleChange}
                       required
-                      className="input-field"
+                      min={today || undefined}
+                      className={`input-field ${errors.checkIn ? 'border-red-600' : ''}`}
                       disabled={isSubmitting}
+                      aria-invalid={errors.checkIn ? true : undefined}
+                      aria-describedby={
+                        errors.checkIn ? 'checkIn-error' : undefined
+                      }
                     />
+                    <FieldError id="checkIn-error" message={errors.checkIn} />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
@@ -221,9 +404,15 @@ const ContactForm = (): React.JSX.Element => {
                       value={formData.checkOut}
                       onChange={handleChange}
                       required
-                      className="input-field"
+                      min={formData.checkIn || today || undefined}
+                      className={`input-field ${errors.checkOut ? 'border-red-600' : ''}`}
                       disabled={isSubmitting}
+                      aria-invalid={errors.checkOut ? true : undefined}
+                      aria-describedby={
+                        errors.checkOut ? 'checkOut-error' : undefined
+                      }
                     />
+                    <FieldError id="checkOut-error" message={errors.checkOut} />
                   </div>
                 </div>
 
@@ -260,19 +449,60 @@ const ContactForm = (): React.JSX.Element => {
                     className="font-body text-xs font-semibold uppercase tracking-wider text-warm-600 flex items-center gap-1.5"
                   >
                     <MessageSquare size={12} aria-hidden="true" />
-                      Nachricht oder besondere Wünsche
-                    </label>
+                    Nachricht oder besondere Wünsche
+                  </label>
                   <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      rows={4}
-                      placeholder="Habt ihr besondere Wünsche, Fragen oder reist ihr mit Kindern an?"
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    rows={4}
+                    placeholder="Habt ihr besondere Wünsche, Fragen oder reist ihr mit Kindern an?"
                     className="input-field resize-none"
                     disabled={isSubmitting}
                   />
                 </div>
+
+                {/* Spam trap – positioned off-screen rather than display:none so
+                    that bots reading the markup still find it. */}
+                <div className="absolute left-[-9999px]" aria-hidden="true">
+                  <label htmlFor="website">
+                    Dieses Feld bitte frei lassen
+                  </label>
+                  <input
+                    id="website"
+                    type="text"
+                    name="website"
+                    value={honeypot}
+                    onChange={(event) => setHoneypot(event.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
+                {submitStatus === 'error' && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-3 border border-red-600 bg-red-50 p-4"
+                  >
+                    <AlertCircle
+                      size={16}
+                      className="mt-0.5 flex-shrink-0 text-red-700"
+                      aria-hidden="true"
+                    />
+                    <p className="font-body text-sm text-red-800 leading-relaxed">
+                      Das Senden hat leider nicht geklappt. Bitte versucht es
+                      noch einmal – oder schreibt uns direkt an{' '}
+                      <a
+                        href={`mailto:${CONTACT_EMAIL}`}
+                        className="underline underline-offset-2"
+                      >
+                        {CONTACT_EMAIL}
+                      </a>{' '}
+                      beziehungsweise ruft uns unter {CONTACT_PHONE} an.
+                    </p>
+                  </div>
+                )}
 
                 <button
                   type="submit"
