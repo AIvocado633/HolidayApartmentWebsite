@@ -7,8 +7,11 @@ import {
   Mountain,
   TreePine,
   MapPin,
+  Check,
+  Ban,
   type LucideIcon,
 } from 'lucide-react';
+import { AMENITY_GROUPS, type AmenityGroup } from '@/lib/amenities';
 
 type Amenity = {
   icon: LucideIcon;
@@ -25,17 +28,19 @@ const AMENITIES: Amenity[] = [
   {
     icon: ChefHat,
     label: 'Voll ausgestattete Küche',
-    description: 'Herd, Backofen, Kühlschrank, Kaffeemaschine und alles Wichtige',
+    description:
+      'Herd, Backofen, Kühlschrank, Spülmaschine, Kaffeemaschine und Wasserkocher',
   },
   {
     icon: BedDouble,
     label: 'Schlafen für 2–4',
-    description: 'Doppelbett im Schlafbereich, dazu ein Schlafsofa im Wohnbereich',
+    description:
+      'Doppelbett (Queensize) im Schlafbereich, dazu ein Schlafsofa im Wohnbereich',
   },
   {
     icon: Bath,
     label: 'Bettwäsche & Handtücher',
-    description: 'Bettwäsche, Handtücher und Fön werden gestellt',
+    description: 'Bettwäsche, Handtücher und Fön werden ohne Gebühr gestellt',
   },
   {
     icon: Car,
@@ -45,7 +50,7 @@ const AMENITIES: Amenity[] = [
   {
     icon: Mountain,
     label: 'Wanderwege vor der Tür',
-    description: 'Direkter Einstieg ins Rhöner Wegenetz – kein Auto nötig',
+    description: 'Direkter Einstieg ins Rhöner Wander- und Radwegenetz – kein Auto nötig',
   },
   {
     icon: TreePine,
@@ -84,6 +89,41 @@ const AmenityCard = ({ amenity }: AmenityCardProps): React.JSX.Element => {
   );
 };
 
+type AmenityGroupListProps = {
+  group: AmenityGroup;
+};
+
+const AmenityGroupList = ({
+  group,
+}: AmenityGroupListProps): React.JSX.Element => {
+  // The icon carries the difference between "you get this" and "please don't",
+  // not the colour — a guest skimming the column has to be able to tell the two
+  // apart without relying on a shade of brown.
+  const Icon = group.isRestriction ? Ban : Check;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h4 className="label-overline">{group.title}</h4>
+      <ul className="flex flex-col gap-2.5" role="list">
+        {group.items.map((item) => (
+          <li key={item} className="flex items-start gap-2.5">
+            <Icon
+              size={16}
+              className={`mt-0.5 shrink-0 ${
+                group.isRestriction ? 'text-warm-400' : 'text-warm-600'
+              }`}
+              aria-hidden="true"
+            />
+            <span className="font-body text-sm text-accent-muted leading-snug">
+              {item}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
 const Amenities = (): React.JSX.Element => {
   return (
     <section
@@ -115,6 +155,17 @@ const Amenities = (): React.JSX.Element => {
             </li>
           ))}
         </ul>
+
+        {/* Fact sheet. The cards above describe the place; this is the plain
+            list guests scan before they enquire. */}
+        <div className="mt-16 pt-14 border-t border-beige">
+          <h3 className="heading-sm text-center mb-10">Ausstattung im Detail</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            {AMENITY_GROUPS.map((group) => (
+              <AmenityGroupList key={group.title} group={group} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
