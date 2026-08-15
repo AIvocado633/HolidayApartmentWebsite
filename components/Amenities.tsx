@@ -30,7 +30,7 @@ const AMENITIES: Amenity[] = [
   {
     icon: BedDouble,
     label: 'Schlafen für 2–4',
-    description: 'Doppelbett im Schlafzimmer, dazu ein Schlafsofa im Wohnzimmer',
+    description: 'Doppelbett im Schlafbereich, dazu ein Schlafsofa im Wohnbereich',
   },
   {
     icon: Bath,

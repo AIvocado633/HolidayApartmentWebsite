@@ -10,7 +10,7 @@ type HeroStat = {
 };
 
 const HERO_STATS: HeroStat[] = [
-  { label: 'Schlafzimmer', value: '1' },
+  { label: 'Schlafbereich', value: '1' },
   { label: 'Personen', value: '2', hint: '+ 2 auf dem Schlafsofa' },
   { label: 'Quadratmeter', value: '80' },
 ];
