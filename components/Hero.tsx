@@ -12,7 +12,7 @@ type HeroStat = {
 const HERO_STATS: HeroStat[] = [
   { label: 'Schlafbereich', value: '1' },
   { label: 'Personen', value: '2', hint: '+ 2 auf dem Schlafsofa' },
-  { label: 'Quadratmeter', value: '80' },
+  { label: 'Quadratmeter', value: '60' },
 ];
 
 const Hero = (): React.JSX.Element => {

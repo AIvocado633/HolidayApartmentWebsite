@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "optimize:images": "node scripts/optimize-images.mjs"
+    "lint": "eslint .",
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "generate:og": "node scripts/generate-og-image.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.400.0",

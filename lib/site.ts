@@ -5,6 +5,18 @@
 export const PROPERTY_NAME = 'Ferienwohnung Zum Biebertal';
 export const OPERATOR_NAME = 'Stefan Weber';
 
+// Absolute base for canonical URLs, the sitemap, robots.txt, the social preview
+// image and the JSON-LD. It has to include the basePath, because on GitHub Pages
+// the site is served from a subdirectory rather than the domain root.
+//
+// Moving to a custom domain means changing this to the bare domain AND removing
+// `basePath` from next.config.js — a custom domain serves from the root, so
+// leaving the basePath in place would break every asset on the site.
+export const SITE_URL = 'https://aivocado633.github.io/HolidayApartmentWebsite';
+
+export const SITE_DESCRIPTION =
+  'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.';
+
 type PostalAddress = {
   street: string;
   postalCode: string;
