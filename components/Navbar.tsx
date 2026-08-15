@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X, CalendarDays } from 'lucide-react';
 
 type NavLink = {
@@ -9,15 +10,21 @@ type NavLink = {
   href: string;
 };
 
+// The targets are sections of the home page, so the links have to be rooted
+// there rather than bare fragments — from a subpage like /impressum a bare
+// "#gallery" only rewrites the hash and goes nowhere.
 const NAV_LINKS: NavLink[] = [
-  { label: 'Ausstattung', href: '#amenities' },
-  { label: 'Galerie', href: '#gallery' },
-   { label: 'Kontakt', href: '#contact' },
+  { label: 'Ausstattung', href: '/#amenities' },
+  { label: 'Galerie', href: '/#gallery' },
+  { label: 'Kontakt', href: '/#contact' },
 ];
+
+const ENQUIRY_HREF = '/#contact';
 
 const Navbar = (): React.JSX.Element => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -30,11 +37,18 @@ const Navbar = (): React.JSX.Element => {
 
   const closeMobileMenu = (): void => setIsMobileMenuOpen(false);
 
+  // Only the home page puts a hero image behind the bar, so only there can it
+  // start out transparent with cream lettering. Every other page has a cream
+  // background, where that lettering would be invisible until the first scroll —
+  // and a short page may not scroll at all.
+  const isHomePage = pathname === '/';
+  const hasSolidBackground = isScrolled || !isHomePage;
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
+          hasSolidBackground
             ? 'bg-cream/95 backdrop-blur-sm shadow-sm border-b border-beige'
             : 'bg-transparent'
         }`}
@@ -51,7 +65,7 @@ const Navbar = (): React.JSX.Element => {
           >
             <span
               className={`font-heading text-base min-[360px]:text-lg sm:text-xl font-semibold tracking-tight transition-colors duration-300 ${
-                isScrolled ? 'text-accent' : 'text-cream'
+                hasSolidBackground ? 'text-accent' : 'text-cream'
               } group-hover:text-warm-400`}
             >
               {/* Non-breaking space keeps the break after "Ferienwohnung"
@@ -60,7 +74,7 @@ const Navbar = (): React.JSX.Element => {
             </span>
             <span
               className={`font-body text-xs tracking-widest uppercase transition-colors duration-300 ${
-                isScrolled ? 'text-warm-500' : 'text-cream/70'
+                hasSolidBackground ? 'text-warm-500' : 'text-cream/70'
               }`}
             >
               Urlaub in der Rhön
@@ -74,7 +88,7 @@ const Navbar = (): React.JSX.Element => {
                 <Link
                   href={link.href}
                   className={`font-body text-sm font-medium transition-colors duration-200 hover:text-warm-400 ${
-                    isScrolled ? 'text-accent-muted' : 'text-cream/90'
+                    hasSolidBackground ? 'text-accent-muted' : 'text-cream/90'
                   }`}
                 >
                   {link.label}
@@ -86,9 +100,9 @@ const Navbar = (): React.JSX.Element => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <Link
-              href="#contact"
+              href={ENQUIRY_HREF}
               className={`btn-primary flex items-center gap-2 ${
-                isScrolled
+                hasSolidBackground
                   ? 'bg-accent text-cream'
                   : 'bg-cream text-accent hover:bg-beige-light'
               }`}
@@ -103,7 +117,7 @@ const Navbar = (): React.JSX.Element => {
             type="button"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
             className={`md:hidden p-2 transition-colors duration-200 ${
-              isScrolled
+              hasSolidBackground
                 ? 'text-accent hover:text-accent-muted'
                 : 'text-cream hover:text-cream/70'
             }`}
@@ -169,7 +183,7 @@ const Navbar = (): React.JSX.Element => {
           {/* Panel CTA */}
           <div className="px-6 pb-10">
             <Link
-              href="#contact"
+              href={ENQUIRY_HREF}
               onClick={closeMobileMenu}
               className="btn-primary w-full justify-center gap-2"
             >

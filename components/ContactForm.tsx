@@ -16,22 +16,31 @@ import {
   MessageSquare,
   AlertCircle,
 } from 'lucide-react';
+import {
+  ADDRESS_INLINE,
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_HREF,
+  CONTACT_PHONE,
+} from '@/lib/site';
 
-// Booking enquiries are delivered by Formspree, because the site is a static
-// export and has no server of its own to post to. The ID is not a secret — it
-// ships in the page HTML — and the address that receives the enquiries is set in
-// the Formspree dashboard rather than here, so it can change without a redeploy.
+// Booking enquiries are delivered by Formhook, because the site is a static
+// export and has no server of its own to post to. Formhook keeps submissions in
+// the EU, which is why it was picked over a US provider — see the Kontaktformular
+// section of app/datenschutz/page.tsx.
 //
-// The submission below is a plain REST call. Do not switch Formspree's reCAPTCHA
-// on for this form: the challenge assumes their redirect flow, and a JSON POST
-// has nowhere to render it. The honeypot field near the end of the form guards
-// against bots instead.
-const FORMSPREE_FORM_ID: string = 'xwlenpbb';
-const IS_FORM_CONFIGURED = FORMSPREE_FORM_ID !== 'REPLACE_WITH_FORMSPREE_ID';
-const FORMSPREE_ENDPOINT = `https://formspree.io/f/${FORMSPREE_FORM_ID}`;
-
-const CONTACT_EMAIL = 'hallo@XYZ-ferien.de';
-const CONTACT_PHONE = '+49 1234 567890';
+// The key in the URL is public by design: it ships in the page HTML, and abuse is
+// kept out by the allowed origins configured in the Formhook dashboard. The
+// address that receives the enquiries is set there too, so it can change without
+// a redeploy.
+//
+// Do not enable a redirect-based captcha on this form. The POST below is a
+// background JSON call that stays on the page, so a challenge has nowhere to
+// render. The honeypot field near the end of the form guards against bots.
+const FORMHOOK_ENDPOINT: string =
+  'https://formhook.app/f/fh_0Y3RlDGlyP25qoBLW0Id7wSkqeohQA62';
+const IS_FORM_CONFIGURED = !FORMHOOK_ENDPOINT.endsWith(
+  'REPLACE_WITH_FORMHOOK_KEY'
+);
 
 type ContactDetail = {
   label: string;
@@ -41,7 +50,7 @@ type ContactDetail = {
 const CONTACT_DETAILS: ContactDetail[] = [
   { label: 'E-Mail', value: CONTACT_EMAIL },
   { label: 'Telefon', value: CONTACT_PHONE },
-  { label: 'Adresse', value: 'Sandroth 15, 36145 Hofbieber/Kleinsassen' },
+  { label: 'Adresse', value: ADDRESS_INLINE },
   { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
   { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
   { label: 'Kaution', value: '100 € (wird nach Abreise zurücküberwiesen)' },
@@ -188,7 +197,7 @@ const ContactForm = (): React.JSX.Element => {
 
     if (!IS_FORM_CONFIGURED) {
       console.error(
-        'Booking enquiries cannot be delivered: set FORMSPREE_FORM_ID in components/ContactForm.tsx to the ID of your Formspree form.'
+        'Booking enquiries cannot be delivered: set FORMHOOK_ENDPOINT in components/ContactForm.tsx to the POST URL of your Formhook form.'
       );
       setSubmitStatus('error');
       return;
@@ -197,15 +206,15 @@ const ContactForm = (): React.JSX.Element => {
     setSubmitStatus('submitting');
 
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch(FORMHOOK_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        // German keys so the notification mail reads properly. Formspree picks
-        // up the lowercase `email` field and sets it as the Reply-To, so a reply
-        // goes straight back to the guest.
+        // German keys so the notification mail and the dashboard read properly.
+        // `email` stays lowercase and unprefixed because form backends commonly
+        // look for that name to set the Reply-To back to the guest.
         body: JSON.stringify({
           Name: formData.name.trim(),
           email: formData.email.trim(),
@@ -214,12 +223,11 @@ const ContactForm = (): React.JSX.Element => {
           Abreise: formData.checkOut,
           Personen: formData.guests,
           Nachricht: formData.message.trim() || '—',
-          _subject: `Buchungsanfrage ${formData.name.trim()} · ${formData.checkIn} bis ${formData.checkOut}`,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Formspree answered with status ${response.status}`);
+        throw new Error(`Formhook answered with status ${response.status}`);
       }
 
       setSubmitStatus('success');
@@ -494,7 +502,7 @@ const ContactForm = (): React.JSX.Element => {
                       Das Senden hat leider nicht geklappt. Bitte versucht es
                       noch einmal – oder schreibt uns direkt an{' '}
                       <a
-                        href={`mailto:${CONTACT_EMAIL}`}
+                        href={CONTACT_EMAIL_HREF}
                         className="underline underline-offset-2"
                       >
                         {CONTACT_EMAIL}

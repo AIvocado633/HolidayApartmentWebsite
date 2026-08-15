@@ -1,22 +1,32 @@
 ﻿import Link from 'next/link';
 import { Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
+import {
+  ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_HREF,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+} from '@/lib/site';
 
 type FooterLink = {
   label: string;
   href: string;
 };
 
+// Rooted at "/" so they still reach the home page sections from a subpage such
+// as /impressum, where a bare fragment would only rewrite the hash.
 const NAVIGATION_LINKS: FooterLink[] = [
-  { label: 'Ausstattung', href: '#amenities' },
-  { label: 'Fotogalerie', href: '#gallery' },
-  { label: 'Jetzt anfragen', href: '#contact' },
+  { label: 'Ausstattung', href: '/#amenities' },
+  { label: 'Fotogalerie', href: '/#gallery' },
+  { label: 'Jetzt anfragen', href: '/#contact' },
 ];
 
+// No separate cookie notice: the site sets no cookies at all, and the
+// Datenschutzerklärung says so under "Keine Cookies, kein Tracking".
 const LEGAL_LINKS: FooterLink[] = [
   { label: 'Datenschutz', href: '/datenschutz' },
   { label: 'AGB', href: '/agb' },
   { label: 'Impressum', href: '/impressum' },
-  { label: 'Cookie-Hinweis', href: '/cookies' },
 ];
 
 const Footer = (): React.JSX.Element => {
@@ -94,7 +104,7 @@ const Footer = (): React.JSX.Element => {
               Kontakt
             </h3>
             <a
-              href="mailto:hallo@XYZ-ferien.de"
+              href={CONTACT_EMAIL_HREF}
               className="flex items-start gap-2.5 text-cream/70 hover:text-cream transition-colors duration-200 group"
             >
               <Mail
@@ -102,12 +112,10 @@ const Footer = (): React.JSX.Element => {
                 className="mt-0.5 flex-shrink-0 group-hover:text-warm-300 transition-colors"
                 aria-hidden="true"
               />
-              <span className="font-body text-sm">
-                hallo@XYZ-ferien.de
-              </span>
+              <span className="font-body text-sm">{CONTACT_EMAIL}</span>
             </a>
             <a
-              href="tel:+491234567890"
+              href={CONTACT_PHONE_HREF}
               className="flex items-center gap-2.5 text-cream/70 hover:text-cream transition-colors duration-200 group"
             >
               <Phone
@@ -115,7 +123,7 @@ const Footer = (): React.JSX.Element => {
                 className="flex-shrink-0 group-hover:text-warm-300 transition-colors"
                 aria-hidden="true"
               />
-              <span className="font-body text-sm">+49 .......</span>
+              <span className="font-body text-sm">{CONTACT_PHONE}</span>
             </a>
             <div className="flex items-start gap-2.5 text-cream/70">
               <MapPin
@@ -124,11 +132,11 @@ const Footer = (): React.JSX.Element => {
                 aria-hidden="true"
               />
               <span className="font-body text-sm">
-                Sandroth 15
+                {ADDRESS.street}
                 <br />
-                36145 Hofbieber/Kleinsassen
+                {ADDRESS.postalCode} {ADDRESS.city}
                 <br />
-                Hessen, Deutschland
+                {ADDRESS.region}, {ADDRESS.country}
               </span>
             </div>
           </address>
