@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Ferienwohnung Zum Biebertal">
+  <!-- Solid accent tile so the mark stays legible on both light and dark tab
+       bars. Square rather than rounded, matching the no-border-radius rule of
+       the design system in app/globals.css. -->
+  <rect width="32" height="32" fill="#0f172a" />
+  <!-- A two-peak Rhön ridge. Kept to a single filled path because anything
+       finer turns to mush at the 16px browsers actually draw favicons at. -->
+  <path d="M2 26 L11 8 L17 18 L22 12 L30 26 Z" fill="#fdf8f0" />
+</svg>

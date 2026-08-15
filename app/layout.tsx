@@ -3,6 +3,10 @@ import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { PROPERTY_NAME, SITE_DESCRIPTION, SITE_URL } from '@/lib/site';
+
+const PAGE_TITLE = `${PROPERTY_NAME} | Urlaub in der Rhön`;
+const OG_IMAGE_URL = `${SITE_URL}/og.jpg`;
 
 const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
@@ -18,10 +22,15 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ['300', '400', '500', '600', '700'],
 });
 
+// Every URL below is written out in full rather than left relative. Next resolves
+// a relative path against metadataBase with `new URL()`, and a leading slash
+// discards the path segment — so "/og.jpg" would resolve to the domain root and
+// drop the /HolidayApartmentWebsite basePath, pointing crawlers and WhatsApp at
+// a 404.
 export const metadata: Metadata = {
-  title: 'Ferienwohnung Zum Biebertal | Urlaub in der Rhön',
-  description:
-    'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.',
+  metadataBase: new URL(SITE_URL),
+  title: PAGE_TITLE,
+  description: SITE_DESCRIPTION,
   keywords: [
     'Ferienwohnung',
     'Rhön',
@@ -31,11 +40,30 @@ export const metadata: Metadata = {
     'Hofbieber',
     'Souterrain',
   ],
+  alternates: {
+    canonical: `${SITE_URL}/`,
+  },
   openGraph: {
-    title: 'Ferienwohnung Zum Biebertal | Urlaub in der Rhön',
-    description:
-      'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe.',
+    title: PAGE_TITLE,
+    description: SITE_DESCRIPTION,
     type: 'website',
+    locale: 'de_DE',
+    siteName: PROPERTY_NAME,
+    url: `${SITE_URL}/`,
+    images: [
+      {
+        url: OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: 'Blick auf die Rhöner Landschaft mit bewaldeten Hügeln',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: PAGE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE_URL],
   },
 };
 
