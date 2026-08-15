@@ -11,7 +11,7 @@ type HeroStat = {
 
 const HERO_STATS: HeroStat[] = [
   { label: 'Schlafbereich', value: '1' },
-  { label: 'Personen', value: '2', hint: '+ 2 auf dem Schlafsofa' },
+  { label: 'Personen', value: '2', hint: '+ 2 auf dem Schlafsofa möglich' },
   { label: 'Quadratmeter', value: '60' },
 ];
 
