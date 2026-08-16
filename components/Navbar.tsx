@@ -140,14 +140,28 @@ const Navbar = (): React.JSX.Element => {
         />
       )}
 
-      {/* Mobile slide-out menu panel */}
+      {/* Mobile slide-out menu panel.
+
+          `invisible` while closed is what keeps the panel out of the tab order
+          and out of the accessibility tree. Sliding it away with
+          `translate-x-full` only moves it: the links stay focusable, so a
+          keyboard user at phone width would tab through six off-screen entries
+          after the toggle, and `aria-modal` would tell a screen reader the rest
+          of the page was inert the whole time rather than only while open.
+
+          Visibility is transitioned rather than flipped outright because CSS
+          holds it at `visible` for the full duration whenever either end of the
+          transition is visible. Closing therefore plays the slide out and only
+          then hides; opening reveals the panel at once. */}
       <div
         id="mobile-menu"
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className={`fixed top-0 right-0 bottom-0 z-50 w-80 max-w-full bg-cream shadow-2xl md:hidden transform transition-transform duration-300 ease-out ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 bottom-0 z-50 w-80 max-w-full bg-cream shadow-2xl md:hidden transform transition-[transform,visibility] duration-300 ease-out ${
+          isMobileMenuOpen
+            ? 'translate-x-0 visible'
+            : 'translate-x-full invisible'
         }`}
       >
         <div className="flex flex-col h-full">
