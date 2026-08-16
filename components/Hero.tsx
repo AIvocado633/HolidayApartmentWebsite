@@ -96,14 +96,18 @@ const Hero = (): React.JSX.Element => {
         </dl>
       </div>
 
-      {/* Scroll indicator */}
-      <a
-        href="#amenities"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-cream/60 hover:text-cream transition-colors duration-200 animate-bounce z-10"
-        aria-label="Scroll to amenities"
-      >
-        <ArrowDown size={28} />
-      </a>
+      {/* Scroll indicator. The centring lives on the wrapper because the bounce
+          keyframes animate `transform`, which would otherwise overwrite the
+          `-translate-x-1/2` and leave the arrow half its width off-centre. */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+        <a
+          href="#amenities"
+          className="block text-cream/60 hover:text-cream transition-colors duration-200 animate-bounce"
+          aria-label="Scroll to amenities"
+        >
+          <ArrowDown size={28} />
+        </a>
+      </div>
     </section>
   );
 };
