@@ -3,6 +3,7 @@ import Link from 'next/link';
 import LegalPage, { LegalParagraph, LegalSection } from '@/components/LegalPage';
 import {
   ADDRESS_INLINE,
+  AGB_LAST_UPDATED,
   CANCELLATION_TIERS,
   CHECK_IN_FROM,
   CHECK_OUT_UNTIL,
@@ -15,15 +16,16 @@ import {
   PRICE_PER_NIGHT_EUR,
   PROPERTY_NAME,
 } from '@/lib/site';
-import { formatEuros } from '@/lib/dates';
+import { formatEuros, formatGermanMonthYear } from '@/lib/dates';
 
 export const metadata: Metadata = {
   title: `AGB | ${PROPERTY_NAME}`,
   description: `Buchungs- und Stornierungsbedingungen der ${PROPERTY_NAME}: wie ein Vertrag zustande kommt, was im Preis enthalten ist und was bei einer Absage gilt.`,
 };
 
-// Bumped whenever a clause changes, not whenever the file is touched.
-const LAST_UPDATED = 'August 2026';
+// Bumped whenever a clause changes, not whenever the file is touched. Lives in
+// lib/site.ts because the sitemap publishes the same day as <lastmod>.
+const LAST_UPDATED = formatGermanMonthYear(AGB_LAST_UPDATED);
 
 type PaymentOption = {
   label: string;
