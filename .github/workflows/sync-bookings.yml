@@ -1,0 +1,63 @@
+name: Sync availability from the calendar
+
+# Reads the apartment's Google Calendar and regenerates data/bookings.json, so
+# accepting a reservation only ever means creating a calendar event.
+#
+# Every three hours rather than more often because Google caches its iCal feeds
+# for hours: a tighter schedule would mostly re-fetch the same stale copy. Run it
+# from the Actions tab when you want to prod it, and remember that for anything
+# genuinely urgent, editing data/bookings.json directly is faster than either.
+#
+# Note that GitHub disables scheduled workflows after 60 days without repository
+# activity, and emails first.
+on:
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # No npm install: the sync script deliberately has no dependencies.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Regenerate the availability file
+        run: npm run sync:bookings
+        env:
+          GOOGLE_ICAL_URL: ${{ secrets.GOOGLE_ICAL_URL }}
+
+      - name: Commit if the availability changed
+        id: commit
+        run: |
+          if git diff --quiet -- data/bookings.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Availability unchanged, nothing to publish."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/bookings.json
+          git commit -m "chore: sync availability from the calendar"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: sync
+    if: needs.sync.outputs.changed == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/build-and-deploy.yml

@@ -1,0 +1,55 @@
+name: Build and deploy
+
+# The build itself, called by deploy.yml on a push to main and by
+# sync-bookings.yml once it has committed new availability.
+#
+# It lives in its own file rather than as a push trigger because a push made with
+# the default GITHUB_TOKEN deliberately does not start other workflows. The sync
+# job therefore cannot rely on deploy.yml noticing its commit, and calling this
+# directly avoids having to hand a personal access token to a scheduled job.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

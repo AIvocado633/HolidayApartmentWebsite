@@ -80,4 +80,36 @@
   .input-field {
     @apply w-full px-4 py-3 bg-white border border-beige text-slate-text font-body text-sm placeholder-warm-400 focus:outline-none focus:border-accent transition-colors duration-200;
   }
+
+  /* Occupied nights in the price calendar. Hatching rather than a fill, so a
+     booked day cannot be mistaken for the solid tint of the chosen range.
+
+     A stay occupies the nights between arrival and departure, which leaves the
+     changeover days half free — someone leaves in the morning, the next guest
+     arrives in the afternoon. The diagonal marks which half is gone. */
+  .day-occupied {
+    @apply relative;
+  }
+
+  .day-occupied::before {
+    content: '';
+    @apply absolute inset-0;
+    background-image: repeating-linear-gradient(
+      45deg,
+      theme('colors.warm.300') 0,
+      theme('colors.warm.300') 1px,
+      transparent 1px,
+      transparent 5px
+    );
+  }
+
+  /* Booked up to this morning: free to arrive on, not to depart on. */
+  .day-occupied-morning::before {
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+
+  /* Booked from this afternoon: free to depart on, not to arrive on. */
+  .day-occupied-evening::before {
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  }
 }

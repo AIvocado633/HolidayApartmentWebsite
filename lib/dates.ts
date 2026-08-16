@@ -48,8 +48,24 @@ const toUtcMs = (isoDate: string): number => {
   return Date.UTC(year, month - 1, day);
 };
 
+// Read back with the UTC getters rather than toIsoDate(), which reports the
+// local day: west of Greenwich a UTC midnight lands on the previous evening and
+// would shift every result back a day.
+const fromUtcMs = (ms: number): string => {
+  const date = new Date(ms);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 export const nightsBetween = (checkIn: string, checkOut: string): number =>
   Math.round((toUtcMs(checkOut) - toUtcMs(checkIn)) / 86_400_000);
+
+/** Negative `days` steps backwards. Same UTC space, same clock-change reason. */
+export const addDays = (isoDate: string, days: number): string =>
+  fromUtcMs(toUtcMs(isoDate) + days * 86_400_000);
 
 export const daysInMonth = (year: number, month: number): number =>
   new Date(year, month + 1, 0).getDate();
