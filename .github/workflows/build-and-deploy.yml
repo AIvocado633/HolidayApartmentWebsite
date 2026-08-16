@@ -9,6 +9,20 @@ name: Build and deploy
 # directly avoids having to hand a personal access token to a scheduled job.
 on:
   workflow_call:
+    inputs:
+      ref:
+        # Which commit to build. A called workflow's checkout otherwise takes the
+        # SHA that triggered the run, which for the sync is the tree from *before*
+        # the availability commit — so the deploy would silently rebuild the old
+        # data and drop the booking that had just been written. Callers that commit
+        # something first have to pass the new SHA.
+        #
+        # Empty means "whatever the event points at", which is what deploy.yml
+        # wants: on a push to main that is already the commit to build.
+        description: The commit to build and deploy.
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -25,6 +39,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

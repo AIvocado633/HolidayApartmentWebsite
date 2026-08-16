@@ -22,6 +22,7 @@ jobs:
       contents: write
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,6 +54,11 @@ jobs:
           git push
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
+          # The publish job has to be told which commit to build. Left to itself it
+          # would check out the SHA that started this run, which is the tree from
+          # before the commit above — and quietly deploy the old availability.
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   publish:
     needs: sync
     if: needs.sync.outputs.changed == 'true'
@@ -61,3 +67,5 @@ jobs:
       pages: write
       id-token: write
     uses: ./.github/workflows/build-and-deploy.yml
+    with:
+      ref: ${{ needs.sync.outputs.sha }}
