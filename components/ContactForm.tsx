@@ -17,6 +17,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useBookingDates } from '@/components/BookingDatesProvider';
+import { rangeIsFree } from '@/lib/bookings';
 import {
   ADDRESS_INLINE,
   CONTACT_EMAIL,
@@ -117,6 +118,10 @@ const validate = (
     errors.checkOut = 'Bitte wählt ein Abreisedatum.';
   } else if (checkIn !== '' && checkOut <= checkIn) {
     errors.checkOut = 'Die Abreise muss nach der Anreise liegen.';
+  } else if (checkIn !== '' && !rangeIsFree(checkIn, checkOut)) {
+    // The calendar already refuses to draw a range across a booking, but these
+    // two fields are native date inputs and can be typed into directly.
+    errors.checkOut = 'In diesem Zeitraum ist die Wohnung schon belegt.';
   }
 
   return errors;

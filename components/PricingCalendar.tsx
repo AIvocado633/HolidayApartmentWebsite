@@ -6,8 +6,16 @@ import { CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useBookingDates } from '@/components/BookingDatesProvider';
 import { BOOKABLE_MONTHS_AHEAD, PRICE_PER_NIGHT_EUR } from '@/lib/site';
 import {
+  BOOKINGS_UPDATED_AT,
+  canArriveOn,
+  canDepartOn,
+  isNightBooked,
+  rangeIsFree,
+} from '@/lib/bookings';
+import {
   MONTH_NAMES,
   WEEKDAY_LABELS,
+  addDays,
   buildIsoDate,
   daysInMonth,
   firstWeekdayOfMonth,
@@ -17,6 +25,42 @@ import {
   nightsBetween,
   toIsoDate,
 } from '@/lib/dates';
+
+// Which of the two dates a click lands on. Both the click handler and the cell
+// rendering ask this, so a day cannot look available and then refuse the click —
+// or the reverse, which would be worse.
+const startsNewStay = (
+  checkIn: string,
+  checkOut: string,
+  isoDate: string
+): boolean => checkIn === '' || checkOut !== '' || isoDate <= checkIn;
+
+type SelectableArgs = {
+  isoDate: string;
+  today: string;
+  lastSelectable: string;
+  checkIn: string;
+  checkOut: string;
+};
+
+// Beginning a stay needs the night that starts on this day; closing one needs the
+// night before it, plus every night in between still being free — that last check
+// is what stops a range being drawn straight through somebody else's booking.
+const isDaySelectable = ({
+  isoDate,
+  today,
+  lastSelectable,
+  checkIn,
+  checkOut,
+}: SelectableArgs): boolean => {
+  if (isoDate < today || isoDate > lastSelectable) {
+    return false;
+  }
+
+  return startsNewStay(checkIn, checkOut, isoDate)
+    ? canArriveOn(isoDate)
+    : canDepartOn(isoDate) && rangeIsFree(checkIn, isoDate);
+};
 
 type MonthGridProps = {
   year: number;
@@ -66,7 +110,13 @@ const MonthGrid = ({
           const day = index + 1;
           const isoDate = buildIsoDate(year, month, day);
 
-          const isSelectable = isoDate >= today && isoDate <= lastSelectable;
+          const isSelectable = isDaySelectable({
+            isoDate,
+            today,
+            lastSelectable,
+            checkIn,
+            checkOut,
+          });
           const isCheckIn = isoDate === checkIn;
           const isCheckOut = isoDate === checkOut;
           const isBetween =
@@ -74,6 +124,27 @@ const MonthGrid = ({
             checkOut !== '' &&
             isoDate > checkIn &&
             isoDate < checkOut;
+          const isSelected = isCheckIn || isCheckOut || isBetween;
+
+          const nightTaken = isNightBooked(isoDate);
+          const previousNightTaken = isNightBooked(addDays(isoDate, -1));
+
+          // Past days are already dimmed, and hatching them too would just be
+          // noise. The hatching is also dropped under a selection, where it would
+          // read as an artefact on top of the solid fill rather than as
+          // information.
+          const showOccupancy =
+            !isSelected &&
+            isoDate >= today &&
+            (nightTaken || previousNightTaken);
+
+          const occupancyClasses = !showOccupancy
+            ? ''
+            : nightTaken && previousNightTaken
+              ? 'day-occupied'
+              : previousNightTaken
+                ? 'day-occupied day-occupied-morning'
+                : 'day-occupied day-occupied-evening';
 
           const edgeClasses = 'bg-accent text-cream font-semibold';
           const betweenClasses = 'bg-warm-200 text-accent';
@@ -89,11 +160,20 @@ const MonthGrid = ({
                 ? betweenClasses
                 : openClasses;
 
+          const occupancyLabel =
+            nightTaken && previousNightTaken
+              ? ' – belegt'
+              : previousNightTaken
+                ? ' – nur als Anreisetag frei'
+                : nightTaken
+                  ? ' – nur als Abreisetag frei'
+                  : '';
+
           const roleLabel = isCheckIn
             ? ' – als Anreise gewählt'
             : isCheckOut
               ? ' – als Abreise gewählt'
-              : '';
+              : occupancyLabel;
 
           return (
             <button
@@ -101,11 +181,13 @@ const MonthGrid = ({
               type="button"
               disabled={!isSelectable}
               onClick={() => onSelect(isoDate)}
-              aria-pressed={isCheckIn || isCheckOut || isBetween}
+              aria-pressed={isSelected}
               aria-label={`${formatGermanDateLong(isoDate)}${roleLabel}`}
-              className={`aspect-square flex items-center justify-center font-body text-sm transition-colors duration-150 ${stateClasses}`}
+              className={`aspect-square flex items-center justify-center font-body text-sm transition-colors duration-150 ${stateClasses} ${occupancyClasses}`}
             >
-              {day}
+              {/* Lifted over the hatching, which is painted by a pseudo-element
+                  filling the whole cell. */}
+              <span className="relative">{day}</span>
             </button>
           );
         })}
@@ -163,9 +245,7 @@ const PricingCalendar = (): React.JSX.Element => {
     // First click, a click once a range is already complete, or a click at or
     // before the current arrival all begin a new stay. Anything else closes the
     // open one.
-    const startsNewStay = checkIn === '' || checkOut !== '' || isoDate <= checkIn;
-
-    if (startsNewStay) {
+    if (startsNewStay(checkIn, checkOut, isoDate)) {
       // Clearing first matters for the completed-range case: setCheckIn on its
       // own only drops a departure that falls on or before the new arrival, so
       // clicking inside a finished range would silently narrow it instead of
@@ -262,6 +342,13 @@ const PricingCalendar = (): React.JSX.Element => {
                 <span className="w-3 h-3 bg-warm-200 inline-block" aria-hidden="true" />
                 Gewählter Zeitraum
               </span>
+              <span className="flex items-center gap-1.5">
+                <span
+                  className="w-3 h-3 inline-block border border-warm-200 day-occupied"
+                  aria-hidden="true"
+                />
+                Belegt
+              </span>
             </div>
           </div>
 
@@ -341,8 +428,11 @@ const PricingCalendar = (): React.JSX.Element => {
                 className="mt-0.5 flex-shrink-0"
                 aria-hidden="true"
               />
-              Der Kalender zeigt keine Belegung. Ob euer Zeitraum frei ist,
-              bestätigen wir euch mit der Antwort auf eure Anfrage.
+              Schraffierte Tage sind schon belegt, Stand{' '}
+              {formatGermanDate(BOOKINGS_UPDATED_AT)}. Halb schraffiert heißt
+              Wechseltag: vormittags reist jemand ab, nachmittags könnt ihr
+              anreisen. Verbindlich wird euer Zeitraum mit unserer Antwort auf
+              eure Anfrage.
             </p>
           </aside>
         </div>
