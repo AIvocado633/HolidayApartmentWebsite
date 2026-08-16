@@ -41,10 +41,15 @@ export const ADDRESS: PostalAddress = {
   country: 'Deutschland',
 };
 
-// TODO: both are still placeholders. An Impressum without a working e-mail
-// address does not satisfy § 5 DDG, so these have to be real before launch.
-export const CONTACT_EMAIL = 'hallo@XYZ-ferien.de';
-export const CONTACT_PHONE = '+49 1234 567890';
+// Published in the Impressum, the footer, the contact section and the JSON-LD.
+// § 5 DDG expects the Impressum to carry a contact that actually works, so both
+// have to stay real.
+//
+// The address is also the login for the Google account behind the availability
+// sync. That is public by necessity rather than by oversight — do not "fix" it by
+// swapping in something else without changing the Impressum too.
+export const CONTACT_EMAIL = 'FerienwohnungZumBiebertal@gmail.com';
+export const CONTACT_PHONE = '+49 6657 1816';
 
 export const CONTACT_EMAIL_HREF = `mailto:${CONTACT_EMAIL}`;
 export const CONTACT_PHONE_HREF = `tel:${CONTACT_PHONE.replace(/[^+\d]/g, '')}`;
