@@ -4,7 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useBookingDates } from '@/components/BookingDatesProvider';
-import { BOOKABLE_MONTHS_AHEAD, PRICE_PER_NIGHT_EUR } from '@/lib/site';
+import {
+  BOOKABLE_MONTHS_AHEAD,
+  FREE_CANCELLATION_DAYS,
+  KURTAXE_PER_PERSON_PER_DAY_EUR,
+  PRICE_PER_NIGHT_EUR,
+} from '@/lib/site';
 import {
   BOOKINGS_UPDATED_AT,
   canArriveOn,
@@ -390,8 +395,17 @@ const PricingCalendar = (): React.JSX.Element => {
                     </span>
                   </div>
                   <p className="font-body text-xs text-warm-500 leading-relaxed">
-                    Zzgl. Kurtaxe von 1 € pro Person und Tag. Kostenlose
-                    Stornierung bis 14 Tage vor Anreise.
+                    Inkl. Endreinigung, zzgl. Kurtaxe von{' '}
+                    {formatEuros(KURTAXE_PER_PERSON_PER_DAY_EUR)} pro Person und
+                    Tag. Kostenlose Stornierung bis {FREE_CANCELLATION_DAYS}{' '}
+                    Tage vor Anreise – die Einzelheiten stehen in den{' '}
+                    <Link
+                      href="/agb"
+                      className="underline underline-offset-2 hover:text-warm-600 transition-colors duration-200"
+                    >
+                      AGB
+                    </Link>
+                    .
                   </p>
                 </>
               ) : (

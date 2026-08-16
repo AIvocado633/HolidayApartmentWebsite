@@ -20,11 +20,16 @@ import { useBookingDates } from '@/components/BookingDatesProvider';
 import { rangeIsFree } from '@/lib/bookings';
 import {
   ADDRESS_INLINE,
+  CHECK_IN_FROM,
+  CHECK_OUT_UNTIL,
   CONTACT_EMAIL,
   CONTACT_EMAIL_HREF,
   CONTACT_PHONE,
+  FREE_CANCELLATION_DAYS,
+  KURTAXE_PER_PERSON_PER_DAY_EUR,
+  MAX_GUESTS,
 } from '@/lib/site';
-import { toIsoDate } from '@/lib/dates';
+import { formatEuros, toIsoDate } from '@/lib/dates';
 
 // Booking enquiries are delivered by Formhook, because the site is a static
 // export and has no server of its own to post to. Formhook keeps submissions in
@@ -55,9 +60,18 @@ const CONTACT_DETAILS: ContactDetail[] = [
   { label: 'Telefon', value: CONTACT_PHONE },
   { label: 'Adresse', value: ADDRESS_INLINE },
   { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
-  { label: 'Check-in / Check-out', value: 'Ab 15:00 Uhr · bis 10:00 Uhr' },
-  { label: 'Stornierung', value: 'Kostenlos bis 14 Tage vor Anreise' },
-  { label: 'Kurtaxe', value: '1 € pro Person und Tag' },
+  {
+    label: 'Check-in / Check-out',
+    value: `Ab ${CHECK_IN_FROM} · bis ${CHECK_OUT_UNTIL}`,
+  },
+  {
+    label: 'Stornierung',
+    value: `Kostenlos bis ${FREE_CANCELLATION_DAYS} Tage vor Anreise`,
+  },
+  {
+    label: 'Kurtaxe',
+    value: `${formatEuros(KURTAXE_PER_PERSON_PER_DAY_EUR)} pro Person und Tag`,
+  },
 ];
 
 // The stay dates are deliberately absent here: they live in BookingDatesProvider
@@ -469,7 +483,7 @@ const ContactForm = (): React.JSX.Element => {
                     className="input-field"
                     disabled={isSubmitting}
                   >
-                    {[1, 2, 3, 4].map((n) => (
+                    {Array.from({ length: MAX_GUESTS }, (_, i) => i + 1).map((n) => (
                       <option key={n} value={String(n)}>
                         {n} {n === 1 ? 'Person' : 'Personen'}
                       </option>
