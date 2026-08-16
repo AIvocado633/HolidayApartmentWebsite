@@ -20,10 +20,65 @@ export const SITE_DESCRIPTION =
 // A single flat rate for every night, all year. If seasonal pricing is ever
 // wanted, this is the constant that turns into a lookup by date — the calendar
 // already prices each night individually rather than multiplying a total.
+//
+// Endreinigung is inside this rate, so there is no separate cleaning line
+// anywhere. The AGB says so in as many words; do not introduce a cleaning fee
+// without changing that section too.
 export const PRICE_PER_NIGHT_EUR = 65;
 
 // How far ahead the price calendar lets guests look.
 export const BOOKABLE_MONTHS_AHEAD = 12;
+
+// Levied by the Gemeinde Hofbieber and collected from guests on its behalf, so
+// it sits outside the nightly rate and outside the cancellation base — a stay
+// that does not happen incurs no Kurtaxe.
+export const KURTAXE_PER_PERSON_PER_DAY_EUR = 1;
+
+// The terms below are quoted in the booking form, the price calendar and the
+// AGB alike. They live here because three copies of "ab 15:00 Uhr" drift apart
+// the first time one of them is edited, and an AGB that contradicts the booking
+// form is worse than no AGB at all.
+export const CHECK_IN_FROM = '15:00 Uhr';
+export const CHECK_OUT_UNTIL = '10:00 Uhr';
+
+// What the guest selector offers and what the flat actually sleeps.
+export const MAX_GUESTS = 4;
+
+// How long the invoice that goes out with the booking confirmation runs for.
+// Capped by the arrival date in the AGB, so a booking made inside this window
+// is simply due on arrival.
+export const INVOICE_DUE_DAYS = 14;
+
+// The cancellation scale. Percentages apply to the accommodation price only.
+//
+// A lump-sum cancellation charge only holds up if it stays below the damage
+// typically to be expected and if the guest may prove that less or none
+// occurred (§ 309 Nr. 5 BGB). Both of those are why the top tier stops at 80 %
+// rather than the industry's usual 90 %: Endreinigung, heating and electricity
+// are all genuinely saved when nobody arrives. Raising these numbers without
+// re-reading that section of the AGB risks voiding the clause outright.
+export const FREE_CANCELLATION_DAYS = 14;
+const REDUCED_FEE_FROM_DAYS = 7;
+
+export type CancellationTier = {
+  label: string;
+  sharePercent: number;
+};
+
+export const CANCELLATION_TIERS: CancellationTier[] = [
+  {
+    label: `Mehr als ${FREE_CANCELLATION_DAYS} Tage vor Anreise`,
+    sharePercent: 0,
+  },
+  {
+    label: `${FREE_CANCELLATION_DAYS - 1} bis ${REDUCED_FEE_FROM_DAYS} Tage vor Anreise`,
+    sharePercent: 50,
+  },
+  {
+    label: `Weniger als ${REDUCED_FEE_FROM_DAYS} Tage vor Anreise, am Anreisetag oder bei Nichtanreise`,
+    sharePercent: 80,
+  },
+];
 
 type PostalAddress = {
   street: string;

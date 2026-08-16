@@ -23,6 +23,11 @@ const sitemap = (): MetadataRoute.Sitemap => [
     changeFrequency: 'yearly',
     priority: 0.3,
   },
+  {
+    url: `${SITE_URL}/agb/`,
+    changeFrequency: 'yearly',
+    priority: 0.3,
+  },
 ];
 
 export default sitemap;
