@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, CalendarDays } from 'lucide-react';
@@ -22,10 +22,23 @@ const NAV_LINKS: NavLink[] = [
 
 const ENQUIRY_HREF = '/#contact';
 
+// The mobile panel holds only links and the close button today; the wider
+// selector keeps the focus trap correct if a control is ever added to it.
+const FOCUSABLE_SELECTOR: string =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+// Tailwind's md breakpoint, where the panel and its toggle both disappear.
+const DESKTOP_MEDIA_QUERY: string = '(min-width: 768px)';
+
+const getFocusableElements = (container: HTMLElement): HTMLElement[] =>
+  Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+
 const Navbar = (): React.JSX.Element => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const pathname = usePathname();
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -35,6 +48,74 @@ const Navbar = (): React.JSX.Element => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // The panel claims aria-modal, so while it is open it has to earn that: focus
+  // starts inside it, Tab cannot leave it, Escape closes it, and the page behind
+  // it does not scroll. Closing hands focus back to the toggle so a keyboard
+  // user carries on where they left off.
+  useEffect(() => {
+    const panel = menuPanelRef.current;
+    const toggle = menuToggleRef.current;
+    if (!isMobileMenuOpen || !panel) return;
+
+    // The panel is still visibility:hidden at this point — the transition that
+    // reveals it only clears that on its first frame, and nothing inside a
+    // hidden subtree can take focus. Wait for that frame before reaching in.
+    let focusFrame = 0;
+    focusFrame = requestAnimationFrame(() => {
+      focusFrame = requestAnimationFrame(() => {
+        getFocusableElements(panel)[0]?.focus();
+      });
+    });
+
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusable = getFocusableElements(panel);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      // Focus that has already escaped the panel — a click on the overlay, say —
+      // is pulled back in on the next Tab rather than left outside.
+      const hasLeft = !(active instanceof HTMLElement) || !panel.contains(active);
+
+      if (event.shiftKey && (active === first || hasLeft)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || hasLeft)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    // Panel and toggle are both md:hidden, so turning a phone to landscape would
+    // strand the menu open with nothing on screen to close it — and the page
+    // still locked.
+    const desktopQuery = window.matchMedia(DESKTOP_MEDIA_QUERY);
+    const handleDesktopChange = (event: MediaQueryListEvent): void => {
+      if (event.matches) setIsMobileMenuOpen(false);
+    };
+
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+    desktopQuery.addEventListener('change', handleDesktopChange);
+
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', handleKeyDown);
+      desktopQuery.removeEventListener('change', handleDesktopChange);
+      document.body.style.overflow = previousBodyOverflow;
+      toggle?.focus();
+    };
+  }, [isMobileMenuOpen]);
 
   const closeMobileMenu = (): void => setIsMobileMenuOpen(false);
 
@@ -115,6 +196,7 @@ const Navbar = (): React.JSX.Element => {
 
           {/* Mobile menu toggle */}
           <button
+            ref={menuToggleRef}
             type="button"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
             className={`md:hidden p-2 transition-colors duration-200 ${
@@ -141,13 +223,18 @@ const Navbar = (): React.JSX.Element => {
       )}
 
       {/* Mobile slide-out menu panel */}
+      {/* Visibility, not just the transform: a panel that is merely pushed
+          off-screen keeps its links in the tab order. Transitioning visibility
+          alongside the transform holds it visible for the slide-out, then hides
+          it — so the closed panel has nothing left to focus. */}
       <div
+        ref={menuPanelRef}
         id="mobile-menu"
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation"
-        className={`fixed top-0 right-0 bottom-0 z-50 w-80 max-w-full bg-cream shadow-2xl md:hidden transform transition-transform duration-300 ease-out ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 bottom-0 z-50 w-80 max-w-full bg-cream shadow-2xl md:hidden transform transition-[transform,visibility] duration-300 ease-out ${
+          isMobileMenuOpen ? 'visible translate-x-0' : 'invisible translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
