@@ -7,18 +7,20 @@ import BookingDatesProvider from '@/components/BookingDatesProvider';
 import { AMENITY_FEATURES } from '@/lib/amenities';
 import {
   ADDRESS,
+  CONTACT_EMAIL,
+  CONTACT_PHONE,
   PRICE_PER_NIGHT_EUR,
   PROPERTY_NAME,
   SITE_DESCRIPTION,
   SITE_URL,
 } from '@/lib/site';
 
-// Structured data, so Google can tie this site to the Google Business Profile
-// entry rather than treating them as unrelated.
+// Structured data, so Search reads the property's details from here rather than
+// inferring them from the page copy.
 //
-// Deliberately incomplete: `telephone` and `email` are missing because the values
-// in lib/site.ts are still placeholders, and feeding a fake number to Google is
-// worse than feeding it nothing. Add both here once they are real.
+// This does not line up with a Google Business Profile, despite the overlap in
+// fields: Google's eligibility rules exclude rental properties without staff on
+// site, so a Maps entry for this flat is unlikely ever to exist.
 const LODGING_JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'LodgingBusiness',
@@ -26,6 +28,8 @@ const LODGING_JSON_LD = {
   description: SITE_DESCRIPTION,
   url: `${SITE_URL}/`,
   image: `${SITE_URL}/og.jpg`,
+  telephone: CONTACT_PHONE,
+  email: CONTACT_EMAIL,
   address: {
     '@type': 'PostalAddress',
     streetAddress: ADDRESS.street,
