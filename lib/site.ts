@@ -58,6 +58,13 @@ export const INVOICE_DUE_DAYS = 14;
 // rather than the industry's usual 90 %: Endreinigung, heating and electricity
 // are all genuinely saved when nobody arrives. Raising these numbers without
 // re-reading that section of the AGB risks voiding the clause outright.
+//
+// The tiers have to tile the whole timeline without a hole: every day before
+// arrival must land in exactly one of them. The free tier is therefore inclusive
+// of its own day ("14 Tage oder mehr", not "mehr als 14"), which is also how the
+// calendar and the contact section read it — "kostenlos bis 14 Tage vor Anreise"
+// is inclusive in German. Keep the labels derived from the constants so raising
+// a threshold cannot leave a day unassigned again.
 export const FREE_CANCELLATION_DAYS = 14;
 const REDUCED_FEE_FROM_DAYS = 7;
 
@@ -68,7 +75,7 @@ export type CancellationTier = {
 
 export const CANCELLATION_TIERS: CancellationTier[] = [
   {
-    label: `Mehr als ${FREE_CANCELLATION_DAYS} Tage vor Anreise`,
+    label: `${FREE_CANCELLATION_DAYS} Tage oder mehr vor Anreise`,
     sharePercent: 0,
   },
   {
@@ -88,7 +95,7 @@ export const CANCELLATION_TIERS: CancellationTier[] = [
 // Bump one when a clause changes, not when the file is touched. A lastmod that
 // moves on every build is one search engines learn to ignore, and the
 // availability sync rebuilds this site several times a day.
-export const AGB_LAST_UPDATED = '2026-08-16';
+export const AGB_LAST_UPDATED = '2026-08-17';
 export const PRIVACY_LAST_UPDATED = '2026-08-16';
 export const IMPRESSUM_LAST_UPDATED = '2026-08-16';
 
