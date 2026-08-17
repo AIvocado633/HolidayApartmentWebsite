@@ -45,10 +45,14 @@ export const CHECK_OUT_UNTIL = '10:00 Uhr';
 // What the guest selector offers and what the flat actually sleeps.
 export const MAX_GUESTS = 4;
 
-// How long the invoice that goes out with the booking confirmation runs for.
-// Capped by the arrival date in the AGB, so a booking made inside this window
-// is simply due on arrival.
+// How long the invoice that goes out with the booking confirmation runs for,
+// and how far ahead of arrival the transfer has to be credited. The second caps
+// the first, so a booking made inside that window is due before the guests set
+// off rather than on the doorstep. Confirmations that land later than the cap
+// fall back to cash at the key handover — the AGB says so, so a change here
+// needs that section read again.
 export const INVOICE_DUE_DAYS = 14;
+export const PAYMENT_DUE_DAYS_BEFORE_ARRIVAL = 3;
 
 // The cancellation scale. Percentages apply to the accommodation price only.
 //
