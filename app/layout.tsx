@@ -22,11 +22,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   weight: ['300', '400', '500', '600', '700'],
 });
 
-// Every URL below is written out in full rather than left relative. Next resolves
-// a relative path against metadataBase with `new URL()`, and a leading slash
-// discards the path segment — so "/og.jpg" would resolve to the domain root and
-// drop the /HolidayApartmentWebsite basePath, pointing crawlers and WhatsApp at
-// a 404.
+// Every URL below is written out in full off SITE_URL rather than left relative.
+// Next would resolve a relative path against metadataBase, which now points at
+// the bare domain, so both spellings happen to agree — but og:image and canonical
+// have to be absolute in the emitted HTML either way, and building them from the
+// one constant keeps them honest if the domain ever changes again.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: PAGE_TITLE,
