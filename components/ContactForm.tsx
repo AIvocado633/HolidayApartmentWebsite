@@ -13,6 +13,7 @@ import {
   Phone,
   Calendar,
   Users,
+  Wallet,
   MessageSquare,
   AlertCircle,
 } from 'lucide-react';
@@ -25,11 +26,19 @@ import {
   CONTACT_EMAIL,
   CONTACT_EMAIL_HREF,
   CONTACT_PHONE,
+  DEFAULT_PAYMENT_METHOD_ID,
+  EXTRA_GUEST_PER_NIGHT_EUR,
   FREE_CANCELLATION_DAYS,
+  GUESTS_INCLUDED_IN_BASE_PRICE,
   KURTAXE_PER_PERSON_PER_DAY_EUR,
   MAX_GUESTS,
+  PAYMENT_DUE_DAYS_BEFORE_ARRIVAL,
+  PAYMENT_METHODS,
+  PRICE_PER_NIGHT_EUR,
+  paymentMethodLabel,
+  type PaymentMethodId,
 } from '@/lib/site';
-import { formatEuros, toIsoDate } from '@/lib/dates';
+import { addDays, formatEuros, toIsoDate } from '@/lib/dates';
 
 // Booking enquiries are delivered by Formhook, because the site is a static
 // export and has no server of its own to post to. Formhook keeps submissions in
@@ -61,6 +70,10 @@ const CONTACT_DETAILS: ContactDetail[] = [
   { label: 'Adresse', value: ADDRESS_INLINE },
   { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
   {
+    label: 'Preis',
+    value: `${formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für ${GUESTS_INCLUDED_IN_BASE_PRICE} Personen, jede weitere ${formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)}`,
+  },
+  {
     label: 'Check-in / Check-out',
     value: `Ab ${CHECK_IN_FROM} · bis ${CHECK_OUT_UNTIL}`,
   },
@@ -74,13 +87,13 @@ const CONTACT_DETAILS: ContactDetail[] = [
   },
 ];
 
-// The stay dates are deliberately absent here: they live in BookingDatesProvider
-// so that the price calendar and these two fields stay in step.
+// The stay dates and the party size are deliberately absent here: they live in
+// BookingDatesProvider so that the price calendar and these fields stay in step.
+// So is the payment method, which is a fixed union rather than free text.
 type FormState = {
   name: string;
   email: string;
   phone: string;
-  guests: string;
   message: string;
 };
 
@@ -99,7 +112,6 @@ const INITIAL_FORM_STATE: FormState = {
   name: '',
   email: '',
   phone: '',
-  guests: '2',
   message: '',
 };
 
@@ -162,9 +174,19 @@ const FieldError = ({
 };
 
 const ContactForm = (): React.JSX.Element => {
-  const { checkIn, checkOut, setCheckIn, setCheckOut, clearDates } =
-    useBookingDates();
+  const {
+    checkIn,
+    checkOut,
+    guests,
+    setCheckIn,
+    setCheckOut,
+    setGuests,
+    clearDates,
+  } = useBookingDates();
   const [formData, setFormData] = useState<FormState>(INITIAL_FORM_STATE);
+  const [payment, setPayment] = useState<PaymentMethodId>(
+    DEFAULT_PAYMENT_METHOD_ID
+  );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
   const [honeypot, setHoneypot] = useState<string>('');
@@ -261,7 +283,8 @@ const ContactForm = (): React.JSX.Element => {
           Telefon: formData.phone.trim() || '—',
           Anreise: checkIn,
           Abreise: checkOut,
-          Personen: formData.guests,
+          Personen: String(guests),
+          Zahlungsart: paymentMethodLabel(payment),
           Nachricht: formData.message.trim() || '—',
         }),
       });
@@ -272,6 +295,10 @@ const ContactForm = (): React.JSX.Element => {
 
       setSubmitStatus('success');
       setFormData(INITIAL_FORM_STATE);
+      setPayment(DEFAULT_PAYMENT_METHOD_ID);
+      // clearDates() leaves the party size alone by design, so an enquiry that
+      // has actually gone out resets it here — the next one is a fresh stay.
+      setGuests(GUESTS_INCLUDED_IN_BASE_PRICE);
       clearDates();
     } catch (error) {
       console.error('Booking enquiry could not be delivered:', error);
@@ -280,6 +307,16 @@ const ContactForm = (): React.JSX.Element => {
   };
 
   const isSubmitting = submitStatus === 'submitting';
+
+  // A transfer has to be credited PAYMENT_DUE_DAYS_BEFORE_ARRIVAL days before
+  // arrival, and the AGB puts bookings made inside that window on cash instead.
+  // The AGB measures from the booking confirmation, which can only be later than
+  // this enquiry — so a stay that is already too close today will still be too
+  // close then, and the note below is safe to show.
+  const transferTooLate =
+    checkIn !== '' &&
+    today !== '' &&
+    checkIn < addDays(today, PAYMENT_DUE_DAYS_BEFORE_ARRIVAL);
 
   return (
     <section
@@ -332,7 +369,7 @@ const ContactForm = (): React.JSX.Element => {
               <form
                 onSubmit={handleSubmit}
                 noValidate
-                aria-label="Booking enquiry form"
+                aria-label="Buchungsanfrage"
                 className="flex flex-col gap-5"
               >
                 {/* Name + Email row */}
@@ -477,19 +514,74 @@ const ContactForm = (): React.JSX.Element => {
                   <select
                     id="guests"
                     name="guests"
-                    value={formData.guests}
-                    onChange={handleChange}
+                    value={guests}
+                    onChange={(event) => setGuests(Number(event.target.value))}
                     required
                     className="input-field"
                     disabled={isSubmitting}
                   >
                     {Array.from({ length: MAX_GUESTS }, (_, i) => i + 1).map((n) => (
-                      <option key={n} value={String(n)}>
+                      <option key={n} value={n}>
                         {n} {n === 1 ? 'Person' : 'Personen'}
                       </option>
                     ))}
                   </select>
+                  {guests > GUESTS_INCLUDED_IN_BASE_PRICE && (
+                    <p className="font-body text-xs text-accent-muted leading-relaxed">
+                      Ab der{' '}
+                      {GUESTS_INCLUDED_IN_BASE_PRICE + 1}. Person kommen{' '}
+                      {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro Person und
+                      Nacht dazu – die Preisübersicht oben rechnet es euch aus.
+                    </p>
+                  )}
                 </div>
+
+                {/* Payment method. A fieldset rather than a labelled div, so the
+                    legend names the group for a screen reader instead of each
+                    radio arriving with only its own label. */}
+                <fieldset className="flex flex-col gap-1.5" disabled={isSubmitting}>
+                  <legend className="font-body text-xs font-semibold uppercase tracking-wider text-warm-600 flex items-center gap-1.5 mb-1.5">
+                    <Wallet size={12} aria-hidden="true" />
+                    Gewünschte Zahlungsart
+                  </legend>
+                  <div className="flex flex-col gap-2">
+                    {PAYMENT_METHODS.map((method) => (
+                      <label
+                        key={method.id}
+                        className={`flex items-start gap-3 border p-3 cursor-pointer transition-colors duration-200 ${
+                          payment === method.id
+                            ? 'border-accent bg-warm-50'
+                            : 'border-beige bg-white hover:border-warm-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="payment"
+                          value={method.id}
+                          checked={payment === method.id}
+                          onChange={() => setPayment(method.id)}
+                          className="mt-0.5 accent-accent"
+                        />
+                        <span className="flex flex-col gap-0.5">
+                          <span className="font-body text-sm font-semibold text-accent">
+                            {method.label}
+                          </span>
+                          <span className="font-body text-xs text-accent-muted leading-relaxed">
+                            {method.hint}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {transferTooLate && (
+                    <p className="font-body text-xs text-accent-muted leading-relaxed mt-1">
+                      Bis zur Anreise sind es weniger als{' '}
+                      {PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage – eine Überweisung
+                      geht dann meist nicht mehr rechtzeitig ein, deshalb
+                      vereinbaren wir in dem Fall Barzahlung bei Anreise.
+                    </p>
+                  )}
+                </fieldset>
 
                 {/* Message */}
                 <div className="flex flex-col gap-1.5">
@@ -506,7 +598,7 @@ const ContactForm = (): React.JSX.Element => {
                     value={formData.message}
                     onChange={handleChange}
                     rows={4}
-                    placeholder="Habt ihr besondere Wünsche, Fragen oder reist ihr mit Kindern an?"
+                    placeholder="Habt ihr besondere Wünsche oder Fragen?"
                     className="input-field resize-none"
                     disabled={isSubmitting}
                   />

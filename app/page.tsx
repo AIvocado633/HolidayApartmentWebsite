@@ -9,6 +9,7 @@ import {
   ADDRESS,
   CONTACT_EMAIL,
   CONTACT_PHONE,
+  MAX_PRICE_PER_NIGHT_EUR,
   PRICE_PER_NIGHT_EUR,
   PROPERTY_NAME,
   SITE_DESCRIPTION,
@@ -41,7 +42,10 @@ const LODGING_JSON_LD = {
   numberOfRooms: 1,
   checkinTime: '15:00',
   checkoutTime: '10:00',
-  priceRange: `${PRICE_PER_NIGHT_EUR} €`,
+  // A span rather than a single figure, because the nightly rate now depends on
+  // the party size. Both ends come from lib/site.ts so this cannot quote a price
+  // the calendar and the AGB have already moved past.
+  priceRange: `${PRICE_PER_NIGHT_EUR}–${MAX_PRICE_PER_NIGHT_EUR} €`,
   // The two house rules have their own booleans in schema.org, so they belong
   // here rather than as amenityFeature entries with `value: false`.
   petsAllowed: false,
