@@ -52,15 +52,31 @@ export const BOOKABLE_MONTHS_AHEAD = 12;
 
 // Levied by the Gemeinde Hofbieber and collected from guests on its behalf, so
 // it sits outside the nightly rate and outside the cancellation base — a stay
-// that does not happen incurs no Kurtaxe.
-export const KURTAXE_PER_PERSON_PER_DAY_EUR = 1;
+// that does not happen incurs no Tourismusabgabe.
+//
+// The unit is the Übernachtung, not the calendar day: a stay touches one more
+// day than it has nights, so "pro Person und Tag" would overstate every total by
+// a night. The AGB, the price calendar and the contact details all quote
+// TOURISMUSABGABE_UNIT verbatim, so the wording changes in one place.
+export const TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR = 1;
+export const TOURISMUSABGABE_UNIT = 'pro Person pro Übernachtung';
 
-// The terms below are quoted in the booking form, the price calendar and the
-// AGB alike. They live here because three copies of "ab 15:00 Uhr" drift apart
-// the first time one of them is edited, and an AGB that contradicts the booking
+// The terms below are quoted in the booking form, the AGB and the JSON-LD
+// alike. They live here because three copies of "ab 15:00 Uhr" drift apart the
+// first time one of them is edited, and an AGB that contradicts the booking
 // form is worse than no AGB at all.
-export const CHECK_IN_FROM = '15:00 Uhr';
-export const CHECK_OUT_UNTIL = '10:00 Uhr';
+//
+// Arrival is a window, departure only an upper bound: the key changes hands in
+// person, so somebody has to be there to hand it over, whereas leaving needs
+// nobody present. That asymmetry is why check-in has two times and check-out
+// one, and why the two are listed apart rather than as a single "15:00 / 10:00"
+// line.
+//
+// Bare times, without "Uhr": the JSON-LD needs them machine-readable, and the
+// German pages add the unit themselves.
+export const CHECK_IN_FROM = '15:00';
+export const CHECK_IN_UNTIL = '19:00';
+export const CHECK_OUT_UNTIL = '10:00';
 
 // How long the invoice that goes out with the booking confirmation runs for,
 // and how far ahead of arrival the transfer has to be credited. The second caps

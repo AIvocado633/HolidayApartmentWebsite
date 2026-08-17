@@ -6,18 +6,20 @@ import {
   AGB_LAST_UPDATED,
   CANCELLATION_TIERS,
   CHECK_IN_FROM,
+  CHECK_IN_UNTIL,
   CHECK_OUT_UNTIL,
   CONTACT_EMAIL,
   CONTACT_EMAIL_HREF,
   EXTRA_GUEST_PER_NIGHT_EUR,
   GUESTS_INCLUDED_IN_BASE_PRICE,
-  KURTAXE_PER_PERSON_PER_DAY_EUR,
   MAX_GUESTS,
   MAX_PRICE_PER_NIGHT_EUR,
   OPERATOR_NAME,
   PAYMENT_METHODS,
   PRICE_PER_NIGHT_EUR,
   PROPERTY_NAME,
+  TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR,
+  TOURISMUSABGABE_UNIT,
 } from '@/lib/site';
 import { formatEuros, formatGermanMonthYear } from '@/lib/dates';
 
@@ -89,9 +91,10 @@ const AgbPage = (): React.JSX.Element => {
           Reinigungsgebühr fällt nicht an.
         </LegalParagraph>
         <LegalParagraph>
-          Nicht im Preis enthalten ist die Kurtaxe. Sie wird von der Gemeinde
-          Hofbieber erhoben, beträgt{' '}
-          {formatEuros(KURTAXE_PER_PERSON_PER_DAY_EUR)} pro Person und Tag und
+          Nicht im Preis enthalten ist die Tourismusabgabe. Sie wird von der
+          Gemeinde Hofbieber erhoben, beträgt{' '}
+          {formatEuros(TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR)}{' '}
+          {TOURISMUSABGABE_UNIT} und
           wird von uns im Namen der Gemeinde eingezogen und dorthin abgeführt.
         </LegalParagraph>
         <LegalParagraph>
@@ -104,8 +107,8 @@ const AgbPage = (): React.JSX.Element => {
       <LegalSection heading="4. Zahlung">
         <LegalParagraph>
           Mit der Buchungsbestätigung schicken wir euch eine Rechnung über den
-          Übernachtungspreis und die Kurtaxe. Für die Zahlung habt ihr die Wahl
-          zwischen zwei Wegen:
+          Übernachtungspreis und die Tourismusabgabe. Für die Zahlung habt ihr
+          die Wahl zwischen zwei Wegen:
         </LegalParagraph>
         <dl className="flex flex-col gap-3">
           {PAYMENT_METHODS.map((method) => (
@@ -129,15 +132,19 @@ const AgbPage = (): React.JSX.Element => {
 
       <LegalSection heading="5. Anreise und Abreise">
         <LegalParagraph>
-          Die Wohnung steht euch am Anreisetag ab {CHECK_IN_FROM} zur Verfügung.
-          Am Abreisetag bitten wir euch, sie bis {CHECK_OUT_UNTIL} zu verlassen.
-          Abweichende Zeiten sind nach Absprache häufig möglich – fragt uns
-          einfach.
+          Anreise: Die Wohnung steht euch am Anreisetag ab {CHECK_IN_FROM} Uhr
+          zur Verfügung. Da wir euch den Schlüssel persönlich übergeben, bitten
+          wir euch, zwischen {CHECK_IN_FROM} und {CHECK_IN_UNTIL} Uhr
+          einzutreffen.
         </LegalParagraph>
         <LegalParagraph>
-          Die Schlüsselübergabe erfolgt persönlich. Sagt uns bitte rechtzeitig
-          Bescheid, wenn ihr voraussichtlich am späten Abend eintrefft, damit
-          wir die Übergabe abstimmen können.
+          Abreise: Am Abreisetag bitten wir euch, die Wohnung bis{' '}
+          {CHECK_OUT_UNTIL} Uhr zu verlassen.
+        </LegalParagraph>
+        <LegalParagraph>
+          Abweichende Zeiten sind nach Absprache häufig möglich. Sagt uns bitte
+          rechtzeitig Bescheid, wenn ihr später als {CHECK_IN_UNTIL} Uhr
+          eintreffen werdet, damit wir die Schlüsselübergabe abstimmen können.
         </LegalParagraph>
       </LegalSection>
 
@@ -172,8 +179,8 @@ const AgbPage = (): React.JSX.Element => {
           ))}
         </dl>
         <LegalParagraph>
-          Kurtaxe fällt für einen nicht angetretenen Aufenthalt nicht an und
-          bleibt bei der Berechnung außer Betracht.
+          Die Tourismusabgabe fällt für einen nicht angetretenen Aufenthalt
+          nicht an und bleibt bei der Berechnung außer Betracht.
         </LegalParagraph>
         <LegalParagraph>
           Können wir die Wohnung im stornierten Zeitraum anderweitig vermieten,

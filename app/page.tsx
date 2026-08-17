@@ -7,6 +7,8 @@ import BookingDatesProvider from '@/components/BookingDatesProvider';
 import { AMENITY_FEATURES } from '@/lib/amenities';
 import {
   ADDRESS,
+  CHECK_IN_FROM,
+  CHECK_OUT_UNTIL,
   CONTACT_EMAIL,
   CONTACT_PHONE,
   MAX_PRICE_PER_NIGHT_EUR,
@@ -40,8 +42,12 @@ const LODGING_JSON_LD = {
     addressCountry: 'DE',
   },
   numberOfRooms: 1,
-  checkinTime: '15:00',
-  checkoutTime: '10:00',
+  // schema.org gives check-in a single time, not a range, so the late end of
+  // the arrival window has nowhere to go here — the AGB and the contact details
+  // carry it instead. The early end is the half worth publishing anyway: it is
+  // the time from which the flat is available.
+  checkinTime: CHECK_IN_FROM,
+  checkoutTime: CHECK_OUT_UNTIL,
   // A span rather than a single figure, because the nightly rate now depends on
   // the party size. Both ends come from lib/site.ts so this cannot quote a price
   // the calendar and the AGB have already moved past.

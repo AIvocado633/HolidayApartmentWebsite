@@ -1,11 +1,7 @@
 'use client';
 
-import {
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type FormEvent,
-} from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
+import Link from 'next/link';
 import {
   Send,
   User,
@@ -18,10 +14,11 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useBookingDates } from '@/components/BookingDatesProvider';
-import { rangeIsFree } from '@/lib/bookings';
+import { canArriveOn, lastDepartureFor, rangeIsFree } from '@/lib/bookings';
 import {
   ADDRESS_INLINE,
   CHECK_IN_FROM,
+  CHECK_IN_UNTIL,
   CHECK_OUT_UNTIL,
   CONTACT_EMAIL,
   CONTACT_EMAIL_HREF,
@@ -30,11 +27,12 @@ import {
   EXTRA_GUEST_PER_NIGHT_EUR,
   FREE_CANCELLATION_DAYS,
   GUESTS_INCLUDED_IN_BASE_PRICE,
-  KURTAXE_PER_PERSON_PER_DAY_EUR,
   MAX_GUESTS,
   PAYMENT_DUE_DAYS_BEFORE_ARRIVAL,
   PAYMENT_METHODS,
   PRICE_PER_NIGHT_EUR,
+  TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR,
+  TOURISMUSABGABE_UNIT,
   paymentMethodLabel,
   type PaymentMethodId,
 } from '@/lib/site';
@@ -74,16 +72,20 @@ const CONTACT_DETAILS: ContactDetail[] = [
     value: `${formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für ${GUESTS_INCLUDED_IN_BASE_PRICE} Personen, jede weitere ${formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)}`,
   },
   {
-    label: 'Check-in / Check-out',
-    value: `Ab ${CHECK_IN_FROM} · bis ${CHECK_OUT_UNTIL}`,
+    label: 'Check-in',
+    value: `${CHECK_IN_FROM} bis ${CHECK_IN_UNTIL} Uhr`,
+  },
+  {
+    label: 'Check-out',
+    value: `Bis ${CHECK_OUT_UNTIL} Uhr`,
   },
   {
     label: 'Stornierung',
     value: `Kostenlos bis ${FREE_CANCELLATION_DAYS} Tage vor Anreise`,
   },
   {
-    label: 'Kurtaxe',
-    value: `${formatEuros(KURTAXE_PER_PERSON_PER_DAY_EUR)} pro Person und Tag`,
+    label: 'Tourismusabgabe',
+    value: `${formatEuros(TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR)} ${TOURISMUSABGABE_UNIT}`,
   },
 ];
 
@@ -134,10 +136,17 @@ const validate = (
     errors.email = 'Diese E-Mail-Adresse sieht nicht vollständig aus.';
   }
 
+  // BookingDatesProvider turns these away as they are entered, so reaching one
+  // here means the page has been open long enough for the availability sync to
+  // have moved on underneath it. Each check names the field it is about: an
+  // arrival on a taken night used to be reported against Abreise, which sent
+  // the guest to correct the one date that was fine.
   if (checkIn === '') {
     errors.checkIn = 'Bitte wählt ein Anreisedatum.';
   } else if (checkIn < today) {
     errors.checkIn = 'Das Anreisedatum liegt in der Vergangenheit.';
+  } else if (!canArriveOn(checkIn)) {
+    errors.checkIn = 'An diesem Tag ist die Wohnung schon belegt.';
   }
 
   if (checkOut === '') {
@@ -145,8 +154,6 @@ const validate = (
   } else if (checkIn !== '' && checkOut <= checkIn) {
     errors.checkOut = 'Die Abreise muss nach der Anreise liegen.';
   } else if (checkIn !== '' && !rangeIsFree(checkIn, checkOut)) {
-    // The calendar already refuses to draw a range across a booking, but these
-    // two fields are native date inputs and can be typed into directly.
     errors.checkOut = 'In diesem Zeitraum ist die Wohnung schon belegt.';
   }
 
@@ -178,6 +185,9 @@ const ContactForm = (): React.JSX.Element => {
     checkIn,
     checkOut,
     guests,
+    today,
+    lastBookable,
+    dateIssue,
     setCheckIn,
     setCheckOut,
     setGuests,
@@ -190,13 +200,6 @@ const ContactForm = (): React.JSX.Element => {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
   const [honeypot, setHoneypot] = useState<string>('');
-  // Resolved after mount so the prerendered HTML does not bake in the build date,
-  // which would drift from the guest's today and trip a hydration mismatch.
-  const [today, setToday] = useState<string>('');
-
-  useEffect(() => {
-    setToday(toIsoDate(new Date()));
-  }, []);
 
   // Drop the error as soon as the guest starts correcting that field.
   const clearError = (field: ValidatedField): void => {
@@ -307,6 +310,26 @@ const ContactForm = (): React.JSX.Element => {
   };
 
   const isSubmitting = submitStatus === 'submitting';
+
+  // min and max are the whole of what a native date input understands about
+  // availability — it has no way to grey out the taken days in between. Setting
+  // them stops the browser's own picker from offering a departure inside the
+  // next booking at all, which is the half of the problem an error message
+  // after the fact cannot solve. The provider still checks what comes back:
+  // these bounds are advisory, and a typed date ignores them.
+  const earliestDeparture = checkIn !== '' ? addDays(checkIn, 1) : today;
+  const latestDeparture =
+    lastBookable === '' || checkIn === ''
+      ? lastBookable
+      : lastDepartureFor(checkIn, lastBookable);
+
+  // Two sources, one message per field: `errors` is what the last submit found,
+  // `dateIssue` what the provider refused as it was entered. The live one wins,
+  // because it describes the value the guest is looking at.
+  const checkInError =
+    dateIssue?.field === 'checkIn' ? dateIssue.message : errors.checkIn;
+  const checkOutError =
+    dateIssue?.field === 'checkOut' ? dateIssue.message : errors.checkOut;
 
   // A transfer has to be credited PAYMENT_DUE_DAYS_BEFORE_ARRIVAL days before
   // arrival, and the AGB puts bookings made inside that window on cash instead.
@@ -448,58 +471,80 @@ const ContactForm = (): React.JSX.Element => {
                 </div>
 
                 {/* Check-in / Check-out row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="flex flex-col gap-1.5">
-                    <label
-                      htmlFor="checkIn"
-                      className="font-body text-xs font-semibold uppercase tracking-wider text-warm-600 flex items-center gap-1.5"
-                    >
-                      <Calendar size={12} aria-hidden="true" />
-                      Anreise *
-                    </label>
-                    <input
-                      id="checkIn"
-                      type="date"
-                      name="checkIn"
-                      value={checkIn}
-                      onChange={handleCheckInChange}
-                      required
-                      min={today || undefined}
-                      className={`input-field ${errors.checkIn ? 'border-red-600' : ''}`}
-                      disabled={isSubmitting}
-                      aria-invalid={errors.checkIn ? true : undefined}
-                      aria-describedby={
-                        errors.checkIn ? 'checkIn-error' : undefined
-                      }
-                    />
-                    <FieldError id="checkIn-error" message={errors.checkIn} />
+                <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="flex flex-col gap-1.5">
+                      <label
+                        htmlFor="checkIn"
+                        className="font-body text-xs font-semibold uppercase tracking-wider text-warm-600 flex items-center gap-1.5"
+                      >
+                        <Calendar size={12} aria-hidden="true" />
+                        Anreise *
+                      </label>
+                      <input
+                        id="checkIn"
+                        type="date"
+                        name="checkIn"
+                        value={checkIn}
+                        onChange={handleCheckInChange}
+                        required
+                        min={today || undefined}
+                        max={lastBookable || undefined}
+                        className={`input-field ${checkInError ? 'border-red-600' : ''}`}
+                        disabled={isSubmitting}
+                        aria-invalid={checkInError ? true : undefined}
+                        aria-describedby={
+                          checkInError ? 'checkIn-error' : 'stay-dates-hint'
+                        }
+                      />
+                      <FieldError id="checkIn-error" message={checkInError} />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label
+                        htmlFor="checkOut"
+                        className="font-body text-xs font-semibold uppercase tracking-wider text-warm-600 flex items-center gap-1.5"
+                      >
+                        <Calendar size={12} aria-hidden="true" />
+                        Abreise *
+                      </label>
+                      <input
+                        id="checkOut"
+                        type="date"
+                        name="checkOut"
+                        value={checkOut}
+                        onChange={handleCheckOutChange}
+                        required
+                        min={earliestDeparture || undefined}
+                        max={latestDeparture || undefined}
+                        className={`input-field ${checkOutError ? 'border-red-600' : ''}`}
+                        disabled={isSubmitting}
+                        aria-invalid={checkOutError ? true : undefined}
+                        aria-describedby={
+                          checkOutError ? 'checkOut-error' : 'stay-dates-hint'
+                        }
+                      />
+                      <FieldError id="checkOut-error" message={checkOutError} />
+                    </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label
-                      htmlFor="checkOut"
-                      className="font-body text-xs font-semibold uppercase tracking-wider text-warm-600 flex items-center gap-1.5"
+                  {/* A native date picker cannot hatch the taken days the way the
+                      calendar does, so it says where they can be seen instead —
+                      otherwise these two fields read as a second, contradicting
+                      source of availability. */}
+                  <p
+                    id="stay-dates-hint"
+                    className="font-body text-xs text-accent-muted leading-relaxed"
+                  >
+                    Welche Tage schon belegt sind, seht ihr im{' '}
+                    <Link
+                      href="#pricing"
+                      className="underline underline-offset-2 hover:text-warm-600 transition-colors duration-200"
                     >
-                      <Calendar size={12} aria-hidden="true" />
-                      Abreise *
-                    </label>
-                    <input
-                      id="checkOut"
-                      type="date"
-                      name="checkOut"
-                      value={checkOut}
-                      onChange={handleCheckOutChange}
-                      required
-                      min={checkIn || today || undefined}
-                      className={`input-field ${errors.checkOut ? 'border-red-600' : ''}`}
-                      disabled={isSubmitting}
-                      aria-invalid={errors.checkOut ? true : undefined}
-                      aria-describedby={
-                        errors.checkOut ? 'checkOut-error' : undefined
-                      }
-                    />
-                    <FieldError id="checkOut-error" message={errors.checkOut} />
-                  </div>
+                      Kalender oben
+                    </Link>{' '}
+                    – die Auswahl dort füllt diese beiden Felder.
+                  </p>
                 </div>
 
                 {/* Guests */}

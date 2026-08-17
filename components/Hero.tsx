@@ -22,7 +22,7 @@ const Hero = (): React.JSX.Element => {
   return (
     <section
       id="hero"
-      className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      className="relative w-full min-h-screen flex flex-col items-center overflow-hidden"
       aria-label="Startbereich"
     >
       {/* Background image */}
@@ -42,7 +42,7 @@ const Hero = (): React.JSX.Element => {
       />
 
       {/* Content */}
-      <div className="relative z-10 section-container section-padding text-center text-cream flex flex-col items-center gap-6 pt-24 pb-16">
+      <div className="relative z-10 section-container section-padding text-center text-cream flex flex-col items-center gap-6 my-auto pt-24 pb-16">
         {/* Overline label */}
         <p className="font-body text-xs font-semibold uppercase tracking-widest text-cream/70 animate-fade-in">
           <MapPin size={12} className="inline mr-1 mb-0.5" aria-hidden="true" />
@@ -99,10 +99,16 @@ const Hero = (): React.JSX.Element => {
         </dl>
       </div>
 
-      {/* Scroll indicator. The centring lives on the wrapper because the bounce
-          keyframes animate `transform`, which would otherwise overwrite the
-          `-translate-x-1/2` and leave the arrow half its width off-centre. */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+      {/* Scroll indicator. It rides the flex flow rather than being pinned to
+          the section's bottom edge: on a short screen the content outgrows
+          `min-h-screen`, and an arrow anchored to that edge followed it down
+          onto the stats. `my-auto` on the block above soaks up whatever space is
+          left, so on a tall screen the arrow still sits down here on its own.
+
+          Centring by `items-center` also keeps the bounce out of it — the
+          keyframes animate `transform`, so a `-translate-x-1/2` here would be
+          overwritten and leave the arrow half its width off-centre. */}
+      <div className="relative z-10 mb-8">
         <a
           href="#amenities"
           className="block text-cream/60 hover:text-cream transition-colors duration-200 animate-bounce"

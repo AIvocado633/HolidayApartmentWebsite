@@ -55,7 +55,7 @@ const AMENITIES: Amenity[] = [
   {
     icon: TreePine,
     label: 'Natur & Stille',
-    description: 'Kleines Dorf und kein Durchgangsverkehr für echte Erholung',
+    description: 'Kleines Malerdorf und kein Durchgangsverkehr für echte Erholung',
   },
   {
     icon: MapPin,
