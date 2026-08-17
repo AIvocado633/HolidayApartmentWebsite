@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useBookingDates } from '@/components/BookingDatesProvider';
@@ -9,9 +9,10 @@ import {
   EXTRA_GUEST_PER_NIGHT_EUR,
   FREE_CANCELLATION_DAYS,
   GUESTS_INCLUDED_IN_BASE_PRICE,
-  KURTAXE_PER_PERSON_PER_DAY_EUR,
   MAX_GUESTS,
   PRICE_PER_NIGHT_EUR,
+  TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR,
+  TOURISMUSABGABE_UNIT,
 } from '@/lib/site';
 import {
   BOOKINGS_UPDATED_AT,
@@ -31,7 +32,6 @@ import {
   formatGermanDate,
   formatGermanDateLong,
   nightsBetween,
-  toIsoDate,
 } from '@/lib/dates';
 
 // Which of the two dates a click lands on. Both the click handler and the cell
@@ -70,6 +70,30 @@ const isDaySelectable = ({
     : canDepartOn(isoDate) && rangeIsFree(checkIn, isoDate);
 };
 
+// Whether the selection still describes a stay that can be had. This is a
+// different question from isDaySelectable, which answers "could a *new* stay
+// start on this day" — a departure landing on the first night of the next
+// booking is a perfectly good departure and a bad arrival, so asking the wrong
+// one greys out the day the guest just legitimately chose.
+//
+// Asked once per grid rather than per cell: a range drawn across a booking is
+// wrong as a whole, not on one particular day.
+const selectionIsSound = (checkIn: string, checkOut: string): boolean => {
+  if (checkIn === '') {
+    return true;
+  }
+
+  if (!canArriveOn(checkIn)) {
+    return false;
+  }
+
+  if (checkOut === '') {
+    return true;
+  }
+
+  return canDepartOn(checkOut) && rangeIsFree(checkIn, checkOut);
+};
+
 type MonthGridProps = {
   year: number;
   month: number;
@@ -91,6 +115,7 @@ const MonthGrid = ({
 }: MonthGridProps): React.JSX.Element => {
   const leadingBlanks = firstWeekdayOfMonth(year, month);
   const dayCount = daysInMonth(year, month);
+  const soundSelection = selectionIsSound(checkIn, checkOut);
 
   return (
     <div className="flex flex-col gap-3">
@@ -133,6 +158,11 @@ const MonthGrid = ({
             isoDate > checkIn &&
             isoDate < checkOut;
           const isSelected = isCheckIn || isCheckOut || isBetween;
+          // A selection that no longer holds — because the availability data has
+          // moved on under an open page. The provider will not let one be made,
+          // so this is the stale case only, and it has to look like a problem
+          // rather than quietly like an ordinary selection.
+          const isConflict = isSelected && !soundSelection;
 
           const nightTaken = isNightBooked(isoDate);
           const previousNightTaken = isNightBooked(addDays(isoDate, -1));
@@ -140,9 +170,11 @@ const MonthGrid = ({
           // Past days are already dimmed, and hatching them too would just be
           // noise. The hatching is also dropped under a selection, where it would
           // read as an artefact on top of the solid fill rather than as
-          // information.
+          // information — but only under one that still holds. Dropping it under
+          // a stale selection blanked the very days that said they were taken,
+          // leaving them looking freer than their unselected neighbours.
           const showOccupancy =
-            !isSelected &&
+            !(isSelected && !isConflict) &&
             isoDate >= today &&
             (nightTaken || previousNightTaken);
 
@@ -159,14 +191,23 @@ const MonthGrid = ({
           const openClasses =
             'bg-white text-accent hover:bg-warm-100 hover:text-accent';
           const blockedClasses = 'text-warm-300 cursor-not-allowed';
+          const conflictClasses =
+            'text-red-800 font-semibold cursor-not-allowed';
 
-          const stateClasses = !isSelectable
-            ? blockedClasses
+          // Selected days are styled on whether the selection holds, not on
+          // whether a new stay could start on them: a departure on the first
+          // night of the next booking is a valid departure and an invalid
+          // arrival, and reading isSelectable here greyed it out the moment it
+          // was picked.
+          const stateClasses = isConflict
+            ? conflictClasses
             : isCheckIn || isCheckOut
               ? edgeClasses
               : isBetween
                 ? betweenClasses
-                : openClasses;
+                : !isSelectable
+                  ? blockedClasses
+                  : openClasses;
 
           const occupancyLabel =
             nightTaken && previousNightTaken
@@ -190,7 +231,9 @@ const MonthGrid = ({
               disabled={!isSelectable}
               onClick={() => onSelect(isoDate)}
               aria-pressed={isSelected}
-              aria-label={`${formatGermanDateLong(isoDate)}${roleLabel}`}
+              aria-label={`${formatGermanDateLong(isoDate)}${roleLabel}${
+                isConflict ? ' – inzwischen belegt' : ''
+              }`}
               className={`aspect-square flex items-center justify-center font-body text-sm transition-colors duration-150 ${stateClasses} ${occupancyClasses}`}
             >
               {/* Lifted over the hatching, which is painted by a pseudo-element
@@ -205,31 +248,27 @@ const MonthGrid = ({
 };
 
 const PricingCalendar = (): React.JSX.Element => {
+  // `today` and the bookable horizon come from the provider rather than being
+  // resolved here, so the grid and the enquiry form's date fields cannot end up
+  // clamped to two different ranges.
   const {
     checkIn,
     checkOut,
     guests,
+    today,
+    lastBookable,
     setCheckIn,
     setCheckOut,
     setGuests,
     clearDates,
   } = useBookingDates();
 
-  // Resolved after mount. The page is prerendered at build time, so deriving the
-  // visible months from a build-time "today" would both bake in a stale month
-  // and trip a hydration mismatch once the build is a few days old.
-  const [today, setToday] = useState<string>('');
   const [monthOffset, setMonthOffset] = useState<number>(0);
 
-  useEffect(() => {
-    setToday(toIsoDate(new Date()));
-  }, []);
-
-  const { months, lastSelectable, canGoBack, canGoForward } = useMemo(() => {
+  const { months, canGoBack, canGoForward } = useMemo(() => {
     if (today === '') {
       return {
         months: [],
-        lastSelectable: '',
         canGoBack: false,
         canGoForward: false,
       };
@@ -246,11 +285,8 @@ const PricingCalendar = (): React.JSX.Element => {
       return { year: cursor.getFullYear(), month: cursor.getMonth() };
     });
 
-    const lastDate = new Date(baseYear, baseMonth + BOOKABLE_MONTHS_AHEAD + 1, 0);
-
     return {
       months: visible,
-      lastSelectable: toIsoDate(lastDate),
       canGoBack: monthOffset > 0,
       canGoForward: monthOffset < BOOKABLE_MONTHS_AHEAD - 1,
     };
@@ -347,7 +383,7 @@ const PricingCalendar = (): React.JSX.Element => {
                       year={year}
                       month={month}
                       today={today}
-                      lastSelectable={lastSelectable}
+                      lastSelectable={lastBookable}
                       checkIn={checkIn}
                       checkOut={checkOut}
                       onSelect={handleSelect}
@@ -463,9 +499,10 @@ const PricingCalendar = (): React.JSX.Element => {
                     </span>
                   </div>
                   <p className="font-body text-xs text-warm-500 leading-relaxed">
-                    Inkl. Endreinigung, zzgl. Kurtaxe von{' '}
-                    {formatEuros(KURTAXE_PER_PERSON_PER_DAY_EUR)} pro Person und
-                    Tag. Kostenlose Stornierung bis {FREE_CANCELLATION_DAYS}{' '}
+                    Inkl. Endreinigung, zzgl. Tourismusabgabe von{' '}
+                    {formatEuros(TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR)}{' '}
+                    {TOURISMUSABGABE_UNIT}. Kostenlose Stornierung bis{' '}
+                    {FREE_CANCELLATION_DAYS}{' '}
                     Tage vor Anreise – die Einzelheiten stehen in den{' '}
                     <Link
                       href="/agb"
