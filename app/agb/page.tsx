@@ -9,11 +9,13 @@ import {
   CHECK_OUT_UNTIL,
   CONTACT_EMAIL,
   CONTACT_EMAIL_HREF,
-  INVOICE_DUE_DAYS,
+  EXTRA_GUEST_PER_NIGHT_EUR,
+  GUESTS_INCLUDED_IN_BASE_PRICE,
   KURTAXE_PER_PERSON_PER_DAY_EUR,
   MAX_GUESTS,
+  MAX_PRICE_PER_NIGHT_EUR,
   OPERATOR_NAME,
-  PAYMENT_DUE_DAYS_BEFORE_ARRIVAL,
+  PAYMENT_METHODS,
   PRICE_PER_NIGHT_EUR,
   PROPERTY_NAME,
 } from '@/lib/site';
@@ -27,23 +29,6 @@ export const metadata: Metadata = {
 // Bumped whenever a clause changes, not whenever the file is touched. Lives in
 // lib/site.ts because the sitemap publishes the same day as <lastmod>.
 const LAST_UPDATED = formatGermanMonthYear(AGB_LAST_UPDATED);
-
-type PaymentOption = {
-  label: string;
-  description: string;
-};
-
-const PAYMENT_OPTIONS: PaymentOption[] = [
-  {
-    label: 'Überweisung',
-    description: `Zahlbar innerhalb von ${INVOICE_DUE_DAYS} Tagen ab Rechnungsdatum, spätestens jedoch ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise. Maßgeblich ist der Zahlungseingang auf unserem Konto. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage, vereinbaren wir Barzahlung bei Anreise.`,
-  },
-  {
-    label: 'Barzahlung bei Anreise',
-    description:
-      'Der Gesamtbetrag wird bei der Schlüsselübergabe in bar beglichen.',
-  },
-];
 
 const AgbPage = (): React.JSX.Element => {
   return (
@@ -86,9 +71,17 @@ const AgbPage = (): React.JSX.Element => {
 
       <LegalSection heading="3. Preise und Leistungen">
         <LegalParagraph>
-          Der Übernachtungspreis beträgt{' '}
-          {formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für die gesamte Wohnung,
-          ganzjährig und unabhängig von der Personenzahl.
+          Der Übernachtungspreis beträgt ganzjährig{' '}
+          {formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für die gesamte Wohnung
+          mit bis zu {GUESTS_INCLUDED_IN_BASE_PRICE} Personen. Für jede weitere
+          Person berechnen wir {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro
+          Nacht. Bei voller Belegung mit {MAX_GUESTS} Personen ergibt das{' '}
+          {formatEuros(MAX_PRICE_PER_NIGHT_EUR)} pro Nacht.
+        </LegalParagraph>
+        <LegalParagraph>
+          Maßgeblich ist die Personenzahl, die ihr bei der Buchung angebt. Reist
+          ihr zu mehr Personen an, berechnen wir den Aufpreis für die
+          zusätzlichen Personen nach.
         </LegalParagraph>
         <LegalParagraph>
           Im Preis enthalten sind die Endreinigung, Bettwäsche und Handtücher,
@@ -115,21 +108,22 @@ const AgbPage = (): React.JSX.Element => {
           zwischen zwei Wegen:
         </LegalParagraph>
         <dl className="flex flex-col gap-3">
-          {PAYMENT_OPTIONS.map((option) => (
-            <div key={option.label} className="flex flex-col gap-0.5">
+          {PAYMENT_METHODS.map((method) => (
+            <div key={method.id} className="flex flex-col gap-0.5">
               <dt className="font-body text-sm font-semibold text-accent">
-                {option.label}
+                {method.label}
               </dt>
               <dd className="font-body text-sm text-accent-muted leading-relaxed">
-                {option.description}
+                {method.description}
               </dd>
             </div>
           ))}
         </dl>
         <LegalParagraph>
-          Bitte teilt uns bei der Buchung mit, welchen der beiden Wege ihr
-          nutzen möchtet, damit wir die Rechnung entsprechend ausstellen können.
-          Eine Anzahlung verlangen wir nicht.
+          Welchen der beiden Wege ihr nutzen möchtet, könnt ihr schon im
+          Anfrageformular auswählen – oder uns einfach schreiben. Bis zur
+          Buchungsbestätigung lässt sich die Wahl jederzeit ändern. Eine
+          Anzahlung verlangen wir nicht.
         </LegalParagraph>
       </LegalSection>
 

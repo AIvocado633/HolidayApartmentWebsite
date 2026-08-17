@@ -23,19 +23,19 @@ const AMENITIES: Amenity[] = [
   {
     icon: Wifi,
     label: 'Schnelles WLAN',
-    description: 'Stabile Internetverbindung in der gesamten Wohnung',
+    description: 'Stabile und schnelle Internetverbindung in der gesamten Wohnung',
   },
   {
     icon: ChefHat,
     label: 'Voll ausgestattete Küche',
     description:
-      'Herd, Backofen, Kühlschrank, Spülmaschine, Kaffeemaschine und Wasserkocher',
+      'Herd, Backofen, Kühlschrank, Spülmaschine, Kaffeemaschine, Wasserkocher und mehr',
   },
   {
     icon: BedDouble,
     label: 'Schlafen für 2–4',
     description:
-      'Doppelbett im Schlafbereich, dazu ein Schlafsofa im Wohnbereich – beide Bereiche liegen im selben offenen Raum',
+      'Doppelbett im Schlafbereich, dazu ein Schlafsofa im Wohnbereich – beides im selben offenen Raum',
   },
   {
     icon: Bath,
@@ -45,7 +45,7 @@ const AMENITIES: Amenity[] = [
   {
     icon: Car,
     label: 'Kostenfreie Parkmöglichkeit',
-    description: 'Ausreichend Parkmöglichkeiten direkt vor dem Haus',
+    description: 'Ausreichend Parkmöglichkeiten direkt vor dem Haus vorhanden',
   },
   {
     icon: Mountain,
@@ -55,7 +55,7 @@ const AMENITIES: Amenity[] = [
   {
     icon: TreePine,
     label: 'Natur & Stille',
-    description: 'Kleines Dorf, kein Durchgangsverkehr – echte Erholung',
+    description: 'Kleines Dorf und kein Durchgangsverkehr für echte Erholung',
   },
   {
     icon: MapPin,

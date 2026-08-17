@@ -18,14 +18,34 @@ export const SITE_URL = 'https://ferienwohnungzumbiebertal.de';
 export const SITE_DESCRIPTION =
   'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.';
 
-// A single flat rate for every night, all year. If seasonal pricing is ever
-// wanted, this is the constant that turns into a lookup by date — the calendar
-// already prices each night individually rather than multiplying a total.
+// The base rate for every night, all year. If seasonal pricing is ever wanted,
+// this is the constant that turns into a lookup by date.
 //
 // Endreinigung is inside this rate, so there is no separate cleaning line
 // anywhere. The AGB says so in as many words; do not introduce a cleaning fee
 // without changing that section too.
 export const PRICE_PER_NIGHT_EUR = 65;
+
+// What the guest selector offers and what the flat actually sleeps.
+export const MAX_GUESTS = 4;
+
+// The base rate covers two people; every further person adds a surcharge. That
+// surcharge is per night rather than once per stay, because the base rate is
+// per night and two prices in different units cannot be added into one total
+// without the calendar's breakdown quietly stopping making sense. A week for
+// four therefore costs 7 × (65 + 2 × 10), not 7 × 65 + 2 × 10.
+//
+// § 3 of the AGB spells out the same arithmetic in words, so neither number
+// moves without that section being rewritten to match.
+export const GUESTS_INCLUDED_IN_BASE_PRICE = 2;
+export const EXTRA_GUEST_PER_NIGHT_EUR = 10;
+
+// A full flat, per night. The JSON-LD publishes the span from the base rate up
+// to this one, and the AGB quotes it as its worked example — both derive it
+// rather than restating 85, which would be a third place to forget.
+export const MAX_PRICE_PER_NIGHT_EUR =
+  PRICE_PER_NIGHT_EUR +
+  (MAX_GUESTS - GUESTS_INCLUDED_IN_BASE_PRICE) * EXTRA_GUEST_PER_NIGHT_EUR;
 
 // How far ahead the price calendar lets guests look.
 export const BOOKABLE_MONTHS_AHEAD = 12;
@@ -42,9 +62,6 @@ export const KURTAXE_PER_PERSON_PER_DAY_EUR = 1;
 export const CHECK_IN_FROM = '15:00 Uhr';
 export const CHECK_OUT_UNTIL = '10:00 Uhr';
 
-// What the guest selector offers and what the flat actually sleeps.
-export const MAX_GUESTS = 4;
-
 // How long the invoice that goes out with the booking confirmation runs for,
 // and how far ahead of arrival the transfer has to be credited. The second caps
 // the first, so a booking made inside that window is due before the guests set
@@ -53,6 +70,48 @@ export const MAX_GUESTS = 4;
 // needs that section read again.
 export const INVOICE_DUE_DAYS = 14;
 export const PAYMENT_DUE_DAYS_BEFORE_ARRIVAL = 3;
+
+// The two ways a stay can be paid for. The AGB prints them in full, the enquiry
+// form offers them as a choice and the guest's pick travels in the enquiry mail,
+// so one array feeds all three. An AGB that names a payment route the form does
+// not offer is the same drift the constants above exist to prevent.
+//
+// `description` is the AGB's wording, `hint` the single line that fits under a
+// radio button. They are two lengths of the same statement — changing one means
+// changing the other.
+export type PaymentMethodId = 'ueberweisung' | 'barzahlung';
+
+export type PaymentMethod = {
+  id: PaymentMethodId;
+  label: string;
+  description: string;
+  hint: string;
+};
+
+export const PAYMENT_METHODS: PaymentMethod[] = [
+  {
+    id: 'ueberweisung',
+    label: 'Überweisung',
+    description: `Zahlbar innerhalb von ${INVOICE_DUE_DAYS} Tagen ab Rechnungsdatum, spätestens jedoch ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise. Maßgeblich ist der Zahlungseingang auf unserem Konto. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage, vereinbaren wir Barzahlung bei Anreise.`,
+    hint: `Rechnung mit der Buchungsbestätigung, zahlbar bis ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise.`,
+  },
+  {
+    id: 'barzahlung',
+    label: 'Barzahlung bei Anreise',
+    description:
+      'Der Gesamtbetrag wird bei der Schlüsselübergabe in bar beglichen.',
+    hint: 'Zahlung in bar bei der Schlüsselübergabe.',
+  },
+];
+
+// Where the enquiry form's radio group starts. The AGB treats the invoice as the
+// standard route and cash as the alternative, so the form does too.
+export const DEFAULT_PAYMENT_METHOD_ID: PaymentMethodId = 'ueberweisung';
+
+// The enquiry mail carries the label rather than the id: the people reading it
+// are looking at a mail client, not at this file.
+export const paymentMethodLabel = (id: PaymentMethodId): string =>
+  PAYMENT_METHODS.find((method) => method.id === id)?.label ?? id;
 
 // The cancellation scale. Percentages apply to the accommodation price only.
 //

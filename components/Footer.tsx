@@ -34,7 +34,7 @@ const Footer = (): React.JSX.Element => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-accent text-cream" aria-label="Site footer">
+    <footer className="bg-accent text-cream" aria-label="Fußzeile">
       {/* Main footer content */}
       <div className="section-container section-padding py-14 md:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -56,7 +56,7 @@ const Footer = (): React.JSX.Element => {
           </div>
 
           {/* Navigation links */}
-          <nav aria-label="Footer navigation">
+          <nav aria-label="Fußzeilen-Navigation">
             <h3 className="font-body text-xs font-semibold uppercase tracking-widest text-cream/50 mb-4">
               Menü
             </h3>
@@ -76,7 +76,7 @@ const Footer = (): React.JSX.Element => {
           </nav>
 
           {/* Legal links */}
-          <nav aria-label="Legal links">
+          <nav aria-label="Rechtliches">
             <h3 className="font-body text-xs font-semibold uppercase tracking-widest text-cream/50 mb-4">
               Rechtliches
             </h3>

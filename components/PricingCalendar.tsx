@@ -6,8 +6,11 @@ import { CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useBookingDates } from '@/components/BookingDatesProvider';
 import {
   BOOKABLE_MONTHS_AHEAD,
+  EXTRA_GUEST_PER_NIGHT_EUR,
   FREE_CANCELLATION_DAYS,
+  GUESTS_INCLUDED_IN_BASE_PRICE,
   KURTAXE_PER_PERSON_PER_DAY_EUR,
+  MAX_GUESTS,
   PRICE_PER_NIGHT_EUR,
 } from '@/lib/site';
 import {
@@ -202,8 +205,15 @@ const MonthGrid = ({
 };
 
 const PricingCalendar = (): React.JSX.Element => {
-  const { checkIn, checkOut, setCheckIn, setCheckOut, clearDates } =
-    useBookingDates();
+  const {
+    checkIn,
+    checkOut,
+    guests,
+    setCheckIn,
+    setCheckOut,
+    setGuests,
+    clearDates,
+  } = useBookingDates();
 
   // Resolved after mount. The page is prerendered at build time, so deriving the
   // visible months from a build-time "today" would both bake in a stale month
@@ -265,7 +275,14 @@ const PricingCalendar = (): React.JSX.Element => {
 
   const nights =
     checkIn !== '' && checkOut !== '' ? nightsBetween(checkIn, checkOut) : 0;
-  const total = nights * PRICE_PER_NIGHT_EUR;
+
+  // Kept as three numbers rather than one, because the summary shows the guest
+  // the same working it used: base nights, surcharge, sum. A lone total that
+  // moves when the head count changes reads like an error.
+  const extraGuests = Math.max(0, guests - GUESTS_INCLUDED_IN_BASE_PRICE);
+  const baseTotal = nights * PRICE_PER_NIGHT_EUR;
+  const extraGuestTotal = nights * extraGuests * EXTRA_GUEST_PER_NIGHT_EUR;
+  const total = baseTotal + extraGuestTotal;
 
   return (
     <section
@@ -277,10 +294,12 @@ const PricingCalendar = (): React.JSX.Element => {
         <header className="flex flex-col items-center text-center gap-4 mb-14">
           <p className="label-overline">Preise &amp; Zeitraum</p>
           <h2 id="pricing-heading" className="heading-lg max-w-xl">
-            {formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht
+            Ab {formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht
           </h2>
           <p className="font-body text-base text-accent-muted max-w-lg leading-relaxed">
-            Der gleiche Preis das ganze Jahr über, für bis zu vier Personen
+            Der gleiche Preis das ganze Jahr über:{' '}
+            {formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für zwei Personen, jede
+            weitere Person {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro Nacht –
             inklusive Bettwäsche und Handtüchern. Sucht euch unten euren
             Zeitraum aus – die Daten werden direkt in die Anfrage übernommen.
           </p>
@@ -377,6 +396,30 @@ const PricingCalendar = (): React.JSX.Element => {
                   {checkOut === '' ? '–' : formatGermanDate(checkOut)}
                 </dd>
               </div>
+              {/* The label sits in the <dt> and points at the control in the
+                  <dd>, so the row keeps reading as one term and its value while
+                  the select still gets a proper accessible name. */}
+              <div className="flex items-center justify-between gap-4">
+                <dt className="font-body text-sm text-accent-muted">
+                  <label htmlFor="pricing-guests">Personen</label>
+                </dt>
+                <dd>
+                  <select
+                    id="pricing-guests"
+                    value={guests}
+                    onChange={(event) => setGuests(Number(event.target.value))}
+                    className="input-field w-auto py-1.5 pl-3 pr-2 text-sm"
+                  >
+                    {Array.from({ length: MAX_GUESTS }, (_, i) => i + 1).map(
+                      (n) => (
+                        <option key={n} value={n}>
+                          {n} {n === 1 ? 'Person' : 'Personen'}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </dd>
+              </div>
             </dl>
 
             <div
@@ -385,10 +428,35 @@ const PricingCalendar = (): React.JSX.Element => {
             >
               {nights > 0 ? (
                 <>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="font-body text-sm text-accent-muted">
-                      {nights} {nights === 1 ? 'Nacht' : 'Nächte'} ×{' '}
-                      {formatEuros(PRICE_PER_NIGHT_EUR)}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <span className="font-body text-sm text-accent-muted">
+                        {nights} {nights === 1 ? 'Nacht' : 'Nächte'} ×{' '}
+                        {formatEuros(PRICE_PER_NIGHT_EUR)}
+                      </span>
+                      <span className="font-body text-sm text-accent">
+                        {formatEuros(baseTotal)}
+                      </span>
+                    </div>
+                    {extraGuests > 0 && (
+                      <div className="flex items-baseline justify-between gap-4">
+                        <span className="font-body text-sm text-accent-muted">
+                          {extraGuests}{' '}
+                          {extraGuests === 1
+                            ? 'weitere Person'
+                            : 'weitere Personen'}{' '}
+                          × {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} ×{' '}
+                          {nights} {nights === 1 ? 'Nacht' : 'Nächte'}
+                        </span>
+                        <span className="font-body text-sm text-accent">
+                          {formatEuros(extraGuestTotal)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4 pt-3 border-t border-beige">
+                    <span className="font-body text-sm font-semibold text-accent">
+                      Gesamt
                     </span>
                     <span className="font-heading text-2xl font-semibold text-accent">
                       {formatEuros(total)}

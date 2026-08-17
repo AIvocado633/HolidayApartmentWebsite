@@ -23,7 +23,7 @@ const Hero = (): React.JSX.Element => {
     <section
       id="hero"
       className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden"
-      aria-label="Hero section"
+      aria-label="Startbereich"
     >
       {/* Background image */}
       <Image
@@ -106,7 +106,7 @@ const Hero = (): React.JSX.Element => {
         <a
           href="#amenities"
           className="block text-cream/60 hover:text-cream transition-colors duration-200 animate-bounce"
-          aria-label="Scroll to amenities"
+          aria-label="Weiter zur Ausstattung"
         >
           <ArrowDown size={28} />
         </a>
