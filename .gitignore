@@ -39,3 +39,11 @@ next-env.d.ts
 .vscode/
 .idea/
 
+# Invoice template
+#
+# Kept on the operator's machine, never in the repository. Once filled in it
+# carries the IBAN and the Steuernummer, and this repository is public — either
+# of those is public the moment it is pushed, and stays in the history
+# afterwards even if the file is deleted again.
+vorlagen/
+
