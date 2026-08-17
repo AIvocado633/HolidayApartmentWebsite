@@ -30,7 +30,7 @@ export const AMENITY_GROUPS: AmenityGroup[] = [
   },
   {
     title: 'Schlafen & Bad',
-    items: ['Doppelbett (Queensize)', 'Bettwäsche (ohne Gebühr)', 'Handtücher'],
+    items: ['Doppelbett', 'Bettwäsche (ohne Gebühr)', 'Handtücher'],
   },
   {
     title: 'Allgemein',
