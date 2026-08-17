@@ -42,6 +42,15 @@ const WITH_WEBP = process.argv.includes('--webp');
  */
 const IMAGES = [
   { src: 'Milseburg.jpg', out: 'rhoen-landschaft', maxEdge: 2000 },
+  // The gallery's establishing shot. It leads the section full width at
+  // `sizes="100vw"`, so it gets the hero's budget rather than the tile budget —
+  // it is also the one photo guests will look at closely, to make out the bed
+  // through the slats.
+  {
+    src: 'WohnSchlafbereichVerbindung.jpg',
+    out: 'wohn-schlafbereich',
+    maxEdge: 2000,
+  },
   { src: 'Wohnbereich.jpg', out: 'wohnbereich', maxEdge: 1600 },
   { src: 'Kueche.jpg', out: 'kueche', maxEdge: 1600 },
   { src: 'Schlafbereich.jpg', out: 'schlafbereich', maxEdge: 1600 },

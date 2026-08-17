@@ -9,8 +9,11 @@ type HeroStat = {
   hint?: string;
 };
 
+// "Schlafbereich: 1" read as a bedroom count and set up the wrong expectation —
+// the flat is one open room with a slat wall between the sleeping and living
+// halves, and a guest should learn that here rather than on arrival.
 const HERO_STATS: HeroStat[] = [
-  { label: 'Schlafbereich', value: '1' },
+  { label: 'Wohn-/Schlafraum', value: '1', hint: 'offen, mit Raumteiler' },
   { label: 'Personen', value: '2', hint: '+ 2 auf dem Schlafsofa möglich' },
   { label: 'Quadratmeter', value: '60' },
 ];
