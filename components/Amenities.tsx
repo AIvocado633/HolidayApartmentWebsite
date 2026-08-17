@@ -35,7 +35,7 @@ const AMENITIES: Amenity[] = [
     icon: BedDouble,
     label: 'Schlafen für 2–4',
     description:
-      'Doppelbett (Queensize) im Schlafbereich, dazu ein Schlafsofa im Wohnbereich',
+      'Doppelbett (Queensize) im Schlafbereich, dazu ein Schlafsofa im Wohnbereich – beide Bereiche liegen im selben offenen Raum',
   },
   {
     icon: Bath,

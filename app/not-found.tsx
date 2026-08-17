@@ -23,7 +23,7 @@ type SuggestedLink = {
 const SUGGESTED_LINKS: SuggestedLink[] = [
   {
     label: 'Fotogalerie',
-    description: 'Wohn- und Schlafbereich, Küche und Bad',
+    description: 'Offener Wohn-/Schlafraum, Küche und Bad',
     href: '/#gallery',
   },
   {
