@@ -137,7 +137,7 @@ const Navbar = (): React.JSX.Element => {
       >
         <nav
           className="section-container section-padding flex items-center justify-between h-18"
-          aria-label="Main navigation"
+          aria-label="Hauptnavigation"
         >
           {/* Logo */}
           <Link
@@ -206,7 +206,7 @@ const Navbar = (): React.JSX.Element => {
             }`}
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-menu"
-            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={isMobileMenuOpen ? 'Menü schließen' : 'Menü öffnen'}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -242,7 +242,7 @@ const Navbar = (): React.JSX.Element => {
         id="mobile-menu"
         role="dialog"
         aria-modal="true"
-        aria-label="Mobile navigation"
+        aria-label="Navigationsmenü"
         className={`fixed top-0 right-0 bottom-0 z-50 w-80 max-w-full bg-cream shadow-2xl md:hidden transform transition-[transform,visibility] duration-300 ease-out ${
           isMobileMenuOpen
             ? 'translate-x-0 visible'
@@ -257,7 +257,7 @@ const Navbar = (): React.JSX.Element => {
               type="button"
               onClick={closeMobileMenu}
               className="p-2 text-accent-muted hover:text-accent transition-colors"
-              aria-label="Close menu"
+              aria-label="Menü schließen"
             >
               <X size={22} />
             </button>
