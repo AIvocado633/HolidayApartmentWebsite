@@ -80,6 +80,17 @@ export const CANCELLATION_TIERS: CancellationTier[] = [
   },
 ];
 
+// When each legal text last changed in substance, as an ISO day. The pages print
+// these as "Stand: August 2026" and the sitemap publishes the same days as
+// <lastmod>, so a crawler and a guest are never told two different things.
+//
+// Bump one when a clause changes, not when the file is touched. A lastmod that
+// moves on every build is one search engines learn to ignore, and the
+// availability sync rebuilds this site several times a day.
+export const AGB_LAST_UPDATED = '2026-08-16';
+export const PRIVACY_LAST_UPDATED = '2026-08-16';
+export const IMPRESSUM_LAST_UPDATED = '2026-08-16';
+
 type PostalAddress = {
   street: string;
   postalCode: string;

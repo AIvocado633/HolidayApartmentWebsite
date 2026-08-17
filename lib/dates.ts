@@ -94,6 +94,13 @@ export const formatGermanDateLong = (isoDate: string): string => {
   return `${day}. ${MONTH_NAMES[month - 1]} ${year}`;
 };
 
+/** "August 2026" — the revision date the legal pages print as their "Stand". */
+export const formatGermanMonthYear = (isoDate: string): string => {
+  const [year, month] = toIsoDateParts(isoDate);
+
+  return `${MONTH_NAMES[month - 1]} ${year}`;
+};
+
 export const formatEuros = (amount: number): string =>
   new Intl.NumberFormat('de-DE', {
     style: 'currency',

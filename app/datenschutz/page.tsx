@@ -8,8 +8,10 @@ import {
   CONTACT_PHONE,
   CONTACT_PHONE_HREF,
   OPERATOR_NAME,
+  PRIVACY_LAST_UPDATED,
   PROPERTY_NAME,
 } from '@/lib/site';
+import { formatGermanMonthYear } from '@/lib/dates';
 
 export const metadata: Metadata = {
   title: `Datenschutzerklärung | ${PROPERTY_NAME}`,
@@ -19,7 +21,8 @@ export const metadata: Metadata = {
 // Wording is deliberately concrete rather than generic: the site sets no
 // cookies, self-hosts its fonts and contacts exactly one external service, so
 // the declaration says that instead of hedging with boilerplate.
-const LAST_UPDATED = 'August 2026';
+// Lives in lib/site.ts because the sitemap publishes the same day as <lastmod>.
+const LAST_UPDATED = formatGermanMonthYear(PRIVACY_LAST_UPDATED);
 
 type DataSubjectRight = {
   label: string;
