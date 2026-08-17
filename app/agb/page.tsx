@@ -13,6 +13,7 @@ import {
   KURTAXE_PER_PERSON_PER_DAY_EUR,
   MAX_GUESTS,
   OPERATOR_NAME,
+  PAYMENT_DUE_DAYS_BEFORE_ARRIVAL,
   PRICE_PER_NIGHT_EUR,
   PROPERTY_NAME,
 } from '@/lib/site';
@@ -35,7 +36,7 @@ type PaymentOption = {
 const PAYMENT_OPTIONS: PaymentOption[] = [
   {
     label: 'Überweisung',
-    description: `Zahlbar innerhalb von ${INVOICE_DUE_DAYS} Tagen ab Rechnungsdatum, spätestens jedoch am Anreisetag. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${INVOICE_DUE_DAYS} Tage, ist der Betrag bis zur Anreise fällig.`,
+    description: `Zahlbar innerhalb von ${INVOICE_DUE_DAYS} Tagen ab Rechnungsdatum, spätestens jedoch ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise. Maßgeblich ist der Zahlungseingang auf unserem Konto. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage, vereinbaren wir Barzahlung bei Anreise.`,
   },
   {
     label: 'Barzahlung bei Anreise',
