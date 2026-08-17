@@ -45,7 +45,7 @@ import { formatEuros, toIsoDate } from '@/lib/dates';
 // background JSON call that stays on the page, so a challenge has nowhere to
 // render. The honeypot field near the end of the form guards against bots.
 const FORMHOOK_ENDPOINT: string =
-  'https://formhook.app/f/fh_0Y3RlDGlyP25qoBLW0Id7wSkqeohQA62';
+  'https://formhook.app/f/fh_6YT8wKLTs0Yfg4u3Arhwa1BiDQqvGk8X';
 const IS_FORM_CONFIGURED = !FORMHOOK_ENDPOINT.endsWith(
   'REPLACE_WITH_FORMHOOK_KEY'
 );
