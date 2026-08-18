@@ -57,7 +57,7 @@ const Hero = (): React.JSX.Element => {
 
         {/* Sub-heading */}
         <p className="font-body text-base sm:text-lg md:text-xl text-cream/80 max-w-2xl leading-relaxed animate-fade-in">
-          Eine gemütliche Souterrainwohnung in einem kleinen, ruhigen Dorf –
+          Eine gemütliche Souterrainwohnung in einem kleinen, ruhigen Dorf,
           umgeben von Wiesen, Wäldern und frischer Rhönluft. Wanderwege
           direkt vor der Tür, kein Verkehr, echte Stille.
         </p>

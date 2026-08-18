@@ -335,9 +335,9 @@ const PricingCalendar = (): React.JSX.Element => {
           <p className="font-body text-base text-accent-muted max-w-lg leading-relaxed">
             Der gleiche Preis das ganze Jahr über:{' '}
             {formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für zwei Personen, jede
-            weitere Person {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro Nacht –
-            inklusive Bettwäsche und Handtüchern. Sucht euch unten euren
-            Zeitraum aus – die Daten werden direkt in die Anfrage übernommen.
+            weitere Person {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro Nacht.
+            Bettwäsche und Handtücher sind inklusive. Sucht euch unten euren
+            Zeitraum aus. Die Daten werden direkt in die Anfrage übernommen.
           </p>
         </header>
 
@@ -503,7 +503,7 @@ const PricingCalendar = (): React.JSX.Element => {
                     {formatEuros(TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR)}{' '}
                     {TOURISMUSABGABE_UNIT}. Kostenlose Stornierung bis{' '}
                     {FREE_CANCELLATION_DAYS}{' '}
-                    Tage vor Anreise – die Einzelheiten stehen in den{' '}
+                    Tage vor Anreise. Die Einzelheiten stehen in den{' '}
                     <Link
                       href="/agb"
                       className="underline underline-offset-2 hover:text-warm-600 transition-colors duration-200"

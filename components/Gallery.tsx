@@ -42,7 +42,7 @@ const GALLERY_GROUPS: GalleryGroup[] = [
     // separately reads as two rooms unless the layout is spelled out, and a
     // guest who books for four on that assumption finds out on arrival.
     description:
-      'Wohn- und Schlafbereich liegen in einem offenen Raum, getrennt durch eine Holzlamellenwand – dazu die eigene Küche und das Bad.',
+      'Wohn- und Schlafbereich liegen in einem offenen Raum, getrennt durch eine Holzlamellenwand. Dazu kommen die eigene Küche und das Bad.',
     gridClasses: 'grid-cols-1 lg:grid-cols-6',
     images: [
       // Leads the group because it is the only photo that settles the layout
@@ -53,7 +53,7 @@ const GALLERY_GROUPS: GalleryGroup[] = [
         id: 'wohn-schlafbereich',
         src: openPlanRoom,
         label: 'Wohn- & Schlafbereich',
-        alt: 'Der offene Wohn-/Schlafraum: links das Doppelbett, rechts die Couchgarnitur mit Couchtisch, dazwischen eine raumhohe Holzlamellenwand als Raumteiler – Decke und Fliesenboden laufen durch',
+        alt: 'Der offene Wohn-/Schlafraum: links das Doppelbett, rechts die Couchgarnitur mit Couchtisch, dazwischen eine raumhohe Holzlamellenwand als Raumteiler. Decke und Fliesenboden laufen durch',
         tile: 'lead',
       },
       // These two share the row below on purpose: seeing the halves of the room
@@ -238,7 +238,7 @@ const Gallery = (): React.JSX.Element => {
             Ein Blick in die Ferienwohnung
           </h2>
           <p className="font-body text-base text-accent-muted max-w-lg leading-relaxed">
-            Seht selbst, wie ihr bei uns wohnt – und was direkt vor der Haustür
+            Seht selbst, wie ihr bei uns wohnt und was direkt vor der Haustür
             auf euch wartet.
           </p>
         </header>

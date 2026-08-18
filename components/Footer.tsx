@@ -50,7 +50,7 @@ const Footer = (): React.JSX.Element => {
             </div>
             <p className="font-body text-sm text-cream/70 leading-relaxed max-w-xs">
               Eine gemütliche Souterrainwohnung in Kleinsassen mitten
-              in der Rhön – für alle, die echte Natur und Stille suchen.
+              in der Rhön. Für alle, die echte Natur und Stille suchen.
             </p>
 
           </div>

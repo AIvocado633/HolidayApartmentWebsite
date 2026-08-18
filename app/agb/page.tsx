@@ -36,7 +36,7 @@ const AgbPage = (): React.JSX.Element => {
   return (
     <LegalPage
       title="Allgemeine Geschäftsbedingungen"
-      intro="Diese Bedingungen regeln, wie eine Buchung bei uns zustande kommt, was der Aufenthalt kostet und was gilt, wenn ihr eure Reise doch absagen müsst. Wir haben sie so kurz gehalten, wie es geht – bei Fragen dazu schreibt uns einfach."
+      intro="Diese Bedingungen regeln, wie eine Buchung bei uns zustande kommt, was der Aufenthalt kostet und was gilt, wenn ihr eure Reise doch absagen müsst. Wir haben sie so kurz gehalten, wie es geht. Bei Fragen dazu schreibt uns einfach."
     >
       <LegalSection heading="1. Geltungsbereich und Vertragspartner">
         <LegalParagraph>

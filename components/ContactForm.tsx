@@ -357,8 +357,8 @@ const ContactForm = (): React.JSX.Element => {
                 Euren Aufenthalt planen
               </h2>
               <p className="font-body text-base text-accent-muted leading-relaxed max-w-md">
-                Ihr habt Fragen oder möchtet buchen? Schreibt uns einfach –
-                wir melden uns in der Regel innerhalb von 24 Stunden mit
+                Ihr habt Fragen oder möchtet buchen? Schreibt uns einfach.
+                Wir melden uns in der Regel innerhalb von 24 Stunden mit
                 Verfügbarkeit und allen Details.
               </p>
             </header>
@@ -542,8 +542,8 @@ const ContactForm = (): React.JSX.Element => {
                       className="underline underline-offset-2 hover:text-warm-600 transition-colors duration-200"
                     >
                       Kalender oben
-                    </Link>{' '}
-                    – die Auswahl dort füllt diese beiden Felder.
+                    </Link>
+                    . Die Auswahl dort füllt diese beiden Felder.
                   </p>
                 </div>
 
@@ -576,7 +576,7 @@ const ContactForm = (): React.JSX.Element => {
                       Ab der{' '}
                       {GUESTS_INCLUDED_IN_BASE_PRICE + 1}. Person kommen{' '}
                       {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro Person und
-                      Nacht dazu – die Preisübersicht oben rechnet es euch aus.
+                      Nacht dazu. Die Preisübersicht oben rechnet es euch aus.
                     </p>
                   )}
                 </div>
@@ -621,7 +621,7 @@ const ContactForm = (): React.JSX.Element => {
                   {transferTooLate && (
                     <p className="font-body text-xs text-accent-muted leading-relaxed mt-1">
                       Bis zur Anreise sind es weniger als{' '}
-                      {PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage – eine Überweisung
+                      {PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage. Eine Überweisung
                       geht dann meist nicht mehr rechtzeitig ein, deshalb
                       vereinbaren wir in dem Fall Barzahlung bei Anreise.
                     </p>
@@ -678,7 +678,7 @@ const ContactForm = (): React.JSX.Element => {
                     />
                     <p className="font-body text-sm text-red-800 leading-relaxed">
                       Das Senden hat leider nicht geklappt. Bitte versucht es
-                      noch einmal – oder schreibt uns direkt an{' '}
+                      noch einmal oder schreibt uns direkt an{' '}
                       <a
                         href={CONTACT_EMAIL_HREF}
                         className="underline underline-offset-2"
