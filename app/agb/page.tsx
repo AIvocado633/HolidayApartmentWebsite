@@ -186,6 +186,9 @@ const AgbPage = (): React.JSX.Element => {
           Können wir die Wohnung im stornierten Zeitraum anderweitig vermieten,
           verringert sich die Stornogebühr um die dabei erzielten Einnahmen.
         </LegalParagraph>
+        {/* Von § 309 Nr. 5 lit. b BGB gefordert: ohne den ausdrücklichen
+            Gegenbeweis ist die Stornostaffel als pauschalierter Schadensersatz
+            unwirksam. Nicht streichen, auch wenn der Absatz redundant wirkt. */}
         <LegalParagraph>
           Es steht euch frei nachzuweisen, dass uns durch die Stornierung kein
           oder ein wesentlich geringerer Schaden entstanden ist. In diesem Fall
@@ -213,7 +216,7 @@ const AgbPage = (): React.JSX.Element => {
         </LegalParagraph>
         <LegalParagraph>
           Dasselbe gilt, wenn die Buchung auf erkennbar falschen Angaben zur
-          Personenzahl oder zum Zweck des Aufenthalts beruht.
+          Personenzahl beruht.
         </LegalParagraph>
         <LegalParagraph>
           Geht eine vereinbarte Überweisung bis zum Fälligkeitstag nicht bei uns
@@ -237,8 +240,13 @@ const AgbPage = (): React.JSX.Element => {
           zwischen 22:00 und 7:00 Uhr.
         </LegalParagraph>
         <LegalParagraph>
-          Die Endreinigung übernehmen wir – es genügt, wenn ihr die Wohnung
-          besenrein und mit abgeräumtem Geschirr hinterlasst.
+          Die Endreinigung übernehmen wir. Es genügt, wenn ihr die Wohnung
+          besenrein und mit eingeräumter Spülmaschine hinterlasst.
+        </LegalParagraph>
+        <LegalParagraph>
+          Ein abschließbares Behältnis für Wertgegenstände steht in der Wohnung
+          nicht zur Verfügung. Größere Wertsachen behaltet ihr deshalb am besten
+          bei euch.
         </LegalParagraph>
         <LegalParagraph>
           Für Schäden, die ihr oder eure Mitreisenden schuldhaft verursacht,
@@ -261,12 +269,6 @@ const AgbPage = (): React.JSX.Element => {
           auf deren Einhaltung ihr regelmäßig vertrauen dürft. In diesem Fall
           ist die Haftung auf den vertragstypischen, vorhersehbaren Schaden
           begrenzt.
-        </LegalParagraph>
-        <LegalParagraph>
-          Für Wertgegenstände steht in der Wohnung kein abschließbares Behältnis
-          zur Verfügung. Eine Haftung für abhandengekommene Sachen richtet sich
-          nach den gesetzlichen Vorschriften; die vorstehenden
-          Haftungsbeschränkungen gelten entsprechend.
         </LegalParagraph>
       </LegalSection>
 
