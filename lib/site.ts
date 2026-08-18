@@ -183,7 +183,7 @@ export const CANCELLATION_TIERS: CancellationTier[] = [
 // moves on every build is one search engines learn to ignore, and the
 // availability sync rebuilds this site several times a day.
 export const AGB_LAST_UPDATED = '2026-08-18';
-export const PRIVACY_LAST_UPDATED = '2026-08-16';
+export const PRIVACY_LAST_UPDATED = '2026-08-18';
 export const IMPRESSUM_LAST_UPDATED = '2026-08-16';
 
 type PostalAddress = {
