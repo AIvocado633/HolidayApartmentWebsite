@@ -124,7 +124,7 @@ const AgbPage = (): React.JSX.Element => {
         </dl>
         <LegalParagraph>
           Welchen der beiden Wege ihr nutzen möchtet, könnt ihr schon im
-          Anfrageformular auswählen – oder uns einfach schreiben. Bis zur
+          Anfrageformular auswählen oder uns einfach schreiben. Bis zur
           Buchungsbestätigung lässt sich die Wahl jederzeit ändern. Eine
           Anzahlung verlangen wir nicht.
         </LegalParagraph>
@@ -214,6 +214,13 @@ const AgbPage = (): React.JSX.Element => {
         <LegalParagraph>
           Dasselbe gilt, wenn die Buchung auf erkennbar falschen Angaben zur
           Personenzahl oder zum Zweck des Aufenthalts beruht.
+        </LegalParagraph>
+        <LegalParagraph>
+          Geht eine vereinbarte Überweisung bis zum Fälligkeitstag nicht bei uns
+          ein und bleibt sie auch nach einer Erinnerung mit angemessener
+          Nachfrist aus, können wir vom Vertrag zurücktreten und den Zeitraum
+          neu vergeben. Die Stornierungsbedingungen unter Ziffer 6 bleiben davon
+          unberührt.
         </LegalParagraph>
       </LegalSection>
 

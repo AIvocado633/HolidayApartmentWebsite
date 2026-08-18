@@ -17,6 +17,7 @@ import { useBookingDates } from '@/components/BookingDatesProvider';
 import { canArriveOn, lastDepartureFor, rangeIsFree } from '@/lib/bookings';
 import {
   ADDRESS_INLINE,
+  CASH_ONLY_WITHIN_DAYS,
   CHECK_IN_FROM,
   CHECK_IN_UNTIL,
   CHECK_OUT_UNTIL,
@@ -28,7 +29,6 @@ import {
   FREE_CANCELLATION_DAYS,
   GUESTS_INCLUDED_IN_BASE_PRICE,
   MAX_GUESTS,
-  PAYMENT_DUE_DAYS_BEFORE_ARRIVAL,
   PAYMENT_METHODS,
   PRICE_PER_NIGHT_EUR,
   TOURISMUSABGABE_PER_PERSON_PER_NIGHT_EUR,
@@ -69,7 +69,7 @@ const CONTACT_DETAILS: ContactDetail[] = [
   { label: 'Antwortzeit', value: 'Innerhalb von 24 Stunden' },
   {
     label: 'Preis',
-    value: `${formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für ${GUESTS_INCLUDED_IN_BASE_PRICE} Personen, jede weitere ${formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)}`,
+    value: `${formatEuros(PRICE_PER_NIGHT_EUR)} pro Nacht für ${GUESTS_INCLUDED_IN_BASE_PRICE} Personen, jede weitere Person ${formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro Nacht`,
   },
   {
     label: 'Check-in',
@@ -331,15 +331,15 @@ const ContactForm = (): React.JSX.Element => {
   const checkOutError =
     dateIssue?.field === 'checkOut' ? dateIssue.message : errors.checkOut;
 
-  // A transfer has to be credited PAYMENT_DUE_DAYS_BEFORE_ARRIVAL days before
-  // arrival, and the AGB puts bookings made inside that window on cash instead.
-  // The AGB measures from the booking confirmation, which can only be later than
+  // The AGB puts a booking confirmed inside CASH_ONLY_WITHIN_DAYS of arrival on
+  // cash, because a transfer would no longer clear by the deadline three days
+  // out. It measures from the booking confirmation, which can only be later than
   // this enquiry — so a stay that is already too close today will still be too
   // close then, and the note below is safe to show.
   const transferTooLate =
     checkIn !== '' &&
     today !== '' &&
-    checkIn < addDays(today, PAYMENT_DUE_DAYS_BEFORE_ARRIVAL);
+    checkIn < addDays(today, CASH_ONLY_WITHIN_DAYS);
 
   return (
     <section
@@ -576,7 +576,14 @@ const ContactForm = (): React.JSX.Element => {
                       Ab der{' '}
                       {GUESTS_INCLUDED_IN_BASE_PRICE + 1}. Person kommen{' '}
                       {formatEuros(EXTRA_GUEST_PER_NIGHT_EUR)} pro Person und
-                      Nacht dazu. Die Preisübersicht oben rechnet es euch aus.
+                      Nacht dazu. Die{' '}
+                      <Link
+                        href="#pricing-summary"
+                        className="underline underline-offset-2 hover:text-warm-600 transition-colors duration-200"
+                      >
+                        Preisübersicht oben
+                      </Link>{' '}
+                      rechnet es euch aus.
                     </p>
                   )}
                 </div>
@@ -621,9 +628,9 @@ const ContactForm = (): React.JSX.Element => {
                   {transferTooLate && (
                     <p className="font-body text-xs text-accent-muted leading-relaxed mt-1">
                       Bis zur Anreise sind es weniger als{' '}
-                      {PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage. Eine Überweisung
-                      geht dann meist nicht mehr rechtzeitig ein, deshalb
-                      vereinbaren wir in dem Fall Barzahlung bei Anreise.
+                      {CASH_ONLY_WITHIN_DAYS} Tage. Eine Überweisung geht dann
+                      meist nicht mehr rechtzeitig ein, deshalb vereinbaren wir
+                      in dem Fall Barzahlung bei Anreise.
                     </p>
                   )}
                 </fieldset>
