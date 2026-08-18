@@ -78,14 +78,22 @@ export const CHECK_IN_FROM = '15:00';
 export const CHECK_IN_UNTIL = '19:00';
 export const CHECK_OUT_UNTIL = '10:00';
 
-// How long the invoice that goes out with the booking confirmation runs for,
-// and how far ahead of arrival the transfer has to be credited. The second caps
-// the first, so a booking made inside that window is due before the guests set
-// off rather than on the doorstep. Confirmations that land later than the cap
-// fall back to cash at the key handover — the AGB says so, so a change here
-// needs that section read again.
-export const INVOICE_DUE_DAYS = 14;
+// When the transfer has to be credited, and how close to arrival that route
+// stops being realistic at all. Both count back from the arrival day, never from
+// the invoice date: a deadline anchored to the invoice falls due months ahead
+// for a stay booked early, which would park the full price with us right through
+// the free-cancellation window in § 6 and turn every free cancellation into a
+// refund somebody has to make by hand.
+//
+// The two numbers measure different things and must not be collapsed into one.
+// The first is a deadline for the money, the second a threshold on the
+// confirmation date, and a SEPA transfer needs a banking day to clear. Setting
+// them equal leaves a band of bookings nominally on the transfer route with a
+// deadline they cannot meet, so the second stays comfortably above the first.
+// Confirmations inside it fall back to cash at the key handover. The AGB says
+// all of this in words, so a change here needs that section read again.
 export const PAYMENT_DUE_DAYS_BEFORE_ARRIVAL = 3;
+export const CASH_ONLY_WITHIN_DAYS = 7;
 
 // The two ways a stay can be paid for. The AGB prints them in full, the enquiry
 // form offers them as a choice and the guest's pick travels in the enquiry mail,
@@ -108,7 +116,7 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
   {
     id: 'ueberweisung',
     label: 'Überweisung',
-    description: `Zahlbar innerhalb von ${INVOICE_DUE_DAYS} Tagen ab Rechnungsdatum, spätestens jedoch ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise. Maßgeblich ist der Zahlungseingang auf unserem Konto. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage, vereinbaren wir Barzahlung bei Anreise.`,
+    description: `Zahlbar bis spätestens ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise. Maßgeblich ist der Zahlungseingang auf unserem Konto. Wann ihr bucht, ändert daran nichts: Auch wer Monate im Voraus reserviert, zahlt erst kurz vor dem Aufenthalt. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${CASH_ONLY_WITHIN_DAYS} Tage, reicht die Zeit für eine Überweisung meist nicht mehr aus; dann vereinbaren wir Barzahlung bei Anreise.`,
     hint: `Rechnung mit der Buchungsbestätigung, zahlbar bis ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise.`,
   },
   {
@@ -174,7 +182,7 @@ export const CANCELLATION_TIERS: CancellationTier[] = [
 // Bump one when a clause changes, not when the file is touched. A lastmod that
 // moves on every build is one search engines learn to ignore, and the
 // availability sync rebuilds this site several times a day.
-export const AGB_LAST_UPDATED = '2026-08-17';
+export const AGB_LAST_UPDATED = '2026-08-18';
 export const PRIVACY_LAST_UPDATED = '2026-08-16';
 export const IMPRESSUM_LAST_UPDATED = '2026-08-16';
 

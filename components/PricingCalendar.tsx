@@ -412,9 +412,12 @@ const PricingCalendar = (): React.JSX.Element => {
             </div>
           </div>
 
-          {/* Summary */}
+          {/* Summary. The id is an anchor target for the enquiry form; the
+              scroll margin matches the sticky offset so the panel clears the
+              fixed navbar on the way in. */}
           <aside
-            className="bg-white border border-beige p-6 flex flex-col gap-5 lg:sticky lg:top-28"
+            id="pricing-summary"
+            className="bg-white border border-beige p-6 flex flex-col gap-5 scroll-mt-28 lg:sticky lg:top-28"
             aria-label="Preisübersicht"
           >
             <h3 className="heading-sm text-accent">Euer Zeitraum</h3>
