@@ -116,7 +116,7 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
   {
     id: 'ueberweisung',
     label: 'Überweisung',
-    description: `Zahlbar bis spätestens ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise. Maßgeblich ist der Zahlungseingang auf unserem Konto. Wann ihr bucht, ändert daran nichts: Auch wer Monate im Voraus reserviert, zahlt erst kurz vor dem Aufenthalt. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${CASH_ONLY_WITHIN_DAYS} Tage, reicht die Zeit für eine Überweisung meist nicht mehr aus; dann vereinbaren wir Barzahlung bei Anreise.`,
+    description: `Zahlbar bis spätestens ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise. Maßgeblich ist der Zahlungseingang auf unserem Konto. Wann ihr bucht, ändert daran nichts. Liegen zwischen Buchungsbestätigung und Anreise weniger als ${CASH_ONLY_WITHIN_DAYS} Tage, bitten wir um Direktüberweisung oder Barzahlung bei Anreise.`,
     hint: `Rechnung mit der Buchungsbestätigung, zahlbar bis ${PAYMENT_DUE_DAYS_BEFORE_ARRIVAL} Tage vor Anreise.`,
   },
   {
