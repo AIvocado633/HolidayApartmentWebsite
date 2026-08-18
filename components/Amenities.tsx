@@ -35,7 +35,7 @@ const AMENITIES: Amenity[] = [
     icon: BedDouble,
     label: 'Schlafen für 2–4',
     description:
-      'Doppelbett im Schlafbereich, dazu ein Schlafsofa im Wohnbereich – beides im selben offenen Raum',
+      'Doppelbett im Schlafbereich und ein Schlafsofa im Wohnbereich, beides im selben offenen Raum',
   },
   {
     icon: Bath,
@@ -50,7 +50,7 @@ const AMENITIES: Amenity[] = [
   {
     icon: Mountain,
     label: 'Wanderwege vor der Tür',
-    description: 'Direkter Einstieg ins Rhöner Wander- und Radwegenetz – kein Auto nötig',
+    description: 'Direkter Einstieg ins Rhöner Wander- und Radwegenetz, kein Auto nötig',
   },
   {
     icon: TreePine,
@@ -140,7 +140,7 @@ const Amenities = (): React.JSX.Element => {
           </h2>
           <p className="font-body text-base text-accent-muted max-w-lg leading-relaxed">
             Die Wohnung ist gemütlich eingerichtet und mit allem Wichtigen
-            ausgestattet – damit ihr einfach ankommen und die Rhön genießen könnt.
+            ausgestattet, damit ihr einfach ankommen und die Rhön genießen könnt.
           </p>
         </header>
 

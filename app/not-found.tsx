@@ -53,7 +53,7 @@ const NotFound = (): React.JSX.Element => {
           </h1>
           <p className="font-body text-base text-accent-muted leading-relaxed">
             Vielleicht ist der Link veraltet, oder in die Adresse hat sich ein
-            Tippfehler eingeschlichen. Die Wohnung steht jedenfalls noch – von
+            Tippfehler eingeschlichen. Die Wohnung steht jedenfalls noch. Von
             hier aus findet ihr zurück.
           </p>
         </header>

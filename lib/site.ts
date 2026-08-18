@@ -16,7 +16,7 @@ export const OPERATOR_NAME = 'Stefan Weber';
 export const SITE_URL = 'https://ferienwohnungzumbiebertal.de';
 
 export const SITE_DESCRIPTION =
-  'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe – euer Zuhause auf Zeit.';
+  'Gemütliche Souterrainwohnung in Kleinsassen bei Hofbieber, mitten in der Rhön. Natur pur, frische Luft und echte Ruhe. Euer Zuhause auf Zeit.';
 
 // The base rate for every night, all year. If seasonal pricing is ever wanted,
 // this is the constant that turns into a lookup by date.
