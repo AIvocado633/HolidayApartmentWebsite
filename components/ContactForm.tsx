@@ -280,6 +280,13 @@ const ContactForm = (): React.JSX.Element => {
         // German keys so the notification mail and the dashboard read properly.
         // `email` stays lowercase and unprefixed because form backends commonly
         // look for that name to set the Reply-To back to the guest.
+        //
+        // Every key below is enumerated in the Kontaktformular section of
+        // app/datenschutz/page.tsx, because Art. 13 DSGVO makes that list the
+        // declaration of what we collect. Adding a field here without adding it
+        // there makes the declaration false — which is exactly how Zahlungsart
+        // went undeclared for a day. A new key means editing that section and
+        // bumping PRIVACY_LAST_UPDATED in lib/site.ts.
         body: JSON.stringify({
           Name: formData.name.trim(),
           email: formData.email.trim(),
@@ -718,8 +725,22 @@ const ContactForm = (): React.JSX.Element => {
                   )}
                 </button>
 
+                {/* Art. 13 DSGVO wants the guest told what happens to these
+                    fields at the point they hand them over, not only via the
+                    footer. The old wording here promised no disclosure "an
+                    Dritte", which is defensible — a processor is not a Dritter
+                    under Art. 4 Nr. 10 — but reads as a contradiction next to a
+                    declaration that names Formhook and its subprocessors. */}
                 <p className="font-body text-xs text-warm-400 text-center">
-                  * Pflichtfelder. Eure Daten werden nicht an Dritte weitergegeben.
+                  * Pflichtfelder. Eure Angaben nutzen wir nur, um eure Anfrage
+                  zu bearbeiten. Was dabei mit ihnen passiert, steht in der{' '}
+                  <Link
+                    href="/datenschutz"
+                    className="underline underline-offset-2 hover:text-warm-600 transition-colors duration-200"
+                  >
+                    Datenschutzerklärung
+                  </Link>
+                  .
                 </p>
               </form>
             )}

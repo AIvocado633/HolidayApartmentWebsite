@@ -131,8 +131,17 @@ const DatenschutzPage = (): React.JSX.Element => {
           Diese Verarbeitung ist erforderlich, um die Website auszuliefern und
           ihren sicheren Betrieb zu gewährleisten. Rechtsgrundlage ist Art. 6
           Abs. 1 lit. f DSGVO. Wir selbst haben keinen Zugriff auf diese
-          Logfiles. Eine Verarbeitung in den USA lässt sich dabei nicht
-          ausschließen.
+          Logfiles.
+        </LegalParagraph>
+        <LegalParagraph>
+          Eine Verarbeitung in den USA lässt sich dabei nicht ausschließen.
+          GitHub, Inc. ist für das EU-US Data Privacy Framework zertifiziert.
+          Für dieses Rahmenwerk hat die Europäische Kommission am 10. Juli 2023
+          einen Angemessenheitsbeschluss gefasst: Zertifizierte Unternehmen in
+          den USA bieten danach ein Schutzniveau, das dem europäischen
+          entspricht. Rechtsgrundlage der Übermittlung ist damit Art. 45 Abs. 1
+          DSGVO. Ergänzend hat sich GitHub den Standardvertragsklauseln der
+          Europäischen Kommission unterworfen.
         </LegalParagraph>
       </LegalSection>
 
@@ -150,7 +159,7 @@ const DatenschutzPage = (): React.JSX.Element => {
           Über das Kontaktformular könnt ihr uns eine Buchungsanfrage schicken.
           Dabei verarbeiten wir euren Namen, eure E-Mail-Adresse, auf Wunsch
           eure Telefonnummer sowie den gewünschten An- und Abreisetag, die
-          Anzahl der Personen und eure Nachricht.
+          Anzahl der Personen, die gewünschte Zahlungsart und eure Nachricht.
         </LegalParagraph>
         <LegalParagraph>
           Zweck der Verarbeitung ist die Bearbeitung eurer Anfrage und die
