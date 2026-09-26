@@ -33,12 +33,12 @@ export const MAX_GUESTS = 4;
 // surcharge is per night rather than once per stay, because the base rate is
 // per night and two prices in different units cannot be added into one total
 // without the calendar's breakdown quietly stopping making sense. A week for
-// four therefore costs 7 × (65 + 2 × 10), not 7 × 65 + 2 × 10.
+// four therefore costs 7 × (65 + 2 × 15), not 7 × 65 + 2 × 15.
 //
 // § 3 of the AGB spells out the same arithmetic in words, so neither number
 // moves without that section being rewritten to match.
 export const GUESTS_INCLUDED_IN_BASE_PRICE = 2;
-export const EXTRA_GUEST_PER_NIGHT_EUR = 10;
+export const EXTRA_GUEST_PER_NIGHT_EUR = 15;
 
 // A full flat, per night. The JSON-LD publishes the span from the base rate up
 // to this one, and the AGB quotes it as its worked example — both derive it
@@ -182,7 +182,7 @@ export const CANCELLATION_TIERS: CancellationTier[] = [
 // Bump one when a clause changes, not when the file is touched. A lastmod that
 // moves on every build is one search engines learn to ignore, and the
 // availability sync rebuilds this site several times a day.
-export const AGB_LAST_UPDATED = '2026-08-18';
+export const AGB_LAST_UPDATED = '2026-09-26';
 export const PRIVACY_LAST_UPDATED = '2026-08-18';
 export const IMPRESSUM_LAST_UPDATED = '2026-08-16';
 
